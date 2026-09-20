@@ -1,0 +1,362 @@
+S3 : Simple Storage Service : 
+
+Its an Object based storage, You can store anything, it treat as Object. 
+We can store flat files. 
+
+bucket is nothing but a folder or directory with unique namespace across the globe or within account..
+
+Global namespace : By default, S3 bucket names are unique across the globe. 
+
+Account Regional Namespace : unique within your account, AWS make it unique by adding suffix to the names. 
+
+General purpose : Recommended for most use cases and access patterns. General purpose buckets are the original S3 bucket type. They allow a mix of storage classes that redundantly store objects "across multiple Availability Zones".
+
+Directory : Recommended for low-latency use cases. These buckets use only the S3 Express One Zone storage class, which provides faster processing of data within a "single Availability Zone".
+
+
+Min: 3 char
+Max: 63 char
+should not start with .
+should not end with .
+no ..
+should not resemble IP address format
+
+--> We have unlimted storage. 
+
+Min Object Size: 0 bytes
+Max Object Size: 50 TB (earlier 5TB Only)
+
+Object URL : https://avinash2807.s3.ap-south-1.amazonaws.com/s3.txt
+
+Virtual path url: (When we dont have . in bucket name)
+https://<bucketname>.s3.<region-code>.amazonaws.com/<object-name>
+https://<bucketname>.s3.amazonaws.com/<object-name>
+
+Standard URL : https://s3.<region-code>.amazonaws.com/<bucket-name>/<object-name>
+
+
+** Not recommended to make any object/bucket public. THis violates the organisations data and compliance polocies. 
+pre-sign URL : URL works only for certain time period. After that time, URL expires. 
+
+How to make an Object Public in S3.? 
+
+1. Account level block public access : OFF by default.. 
+2. Bucket level public access : Specific to bucket : Block all public access: On --> off
+3. Object Level: 
+
+--> Using ACLs : Access Control List
+--> Using Bucket Policy
+
+
+step 1 : verify account level
+Step 2 : verify bucket level
+	2.1 Block all public access: off
+	2.2 permisisons --> Object Ownership --> edit --> enable ACLs
+Step 3 : choose object and make public using ACL.
+
+* THis method has a limitation, If we overwrite with new verison, we need to make public again. 
+
+----
+
+S3 pricing: 
+
+How many APi calls happing on our data.? (put/get/update)
+How much data trasfering (in/out)
+How much data youa re storing in S3.
+What storage class you are using.? (s3 standard / IA / Glacier)
+Are you performing any data retrivals.? 
+
+----
+
+Access Pattern : 
+1. How frequently you are accessing the data.?
+2. Do you need data without delay.? or you are okay to access with delays.?
+
+S3 Standard : Frequently accessed data can be stored here. 
+--> We can access data immediately. 
+--> Data automatically spans across multiple AZs (>=3 AZs)
+--> 99.99% Availability.. 99.999999999% Durability (11 9's).. 
+
+Yearly (365 days): 52 minutes 36 seconds downtime expected for 99.99% Availability..
+
+Standard-IA (Infrequently Accessed) : 
+--> THis is designed to store less freq accessed data.  (less cost than S3 Standard)
+--> We can access data immediately. 
+--> Data automatically spans across multiple AZs (>=3 AZs)
+--> 99.99% Availability.. 99.999999999% Durability (11 9's).. 
+
+One Zone-IA (Infrequently Accessed) : 
+--> Store easily reprodusable data.. 
+--> THis is designed to store less freq accessed data.  (less cost than S3 Standard)
+--> We can access data immediately. 
+--> Data stores only in one AZ
+--> 99.95% Availability.. 99.999999999% Durability (11 9's).. 
+
+
+Glacier Instant Retrieval : 
+--> Long-lived archive data accessed once a quarter with instant retrieval in milliseconds
+
+Glacier Flexible Retrieval (formerly Glacier) : 
+--> Long-lived archive data accessed once a year with retrieval of minutes to hours
+--> We cannot access data immediately. 
+--> We need to perform data retraival to access the data. 
+
+Glacier Deep Archive :
+--> Long-lived archive data accessed less than once a year with retrieval of hours
+
+Intelligent Tier: 
+--> when we dont have clarity on data access patterns. 
+--> freq changing data access requirements. (unknown access patterns)
+
+
+Bulk retrieval : Typically within 5-12 hours.
+Standard retrieval : Typically within 3-5 hours.
+Expedited retrieval : Typically within 1-5 minutes when retrieving less than 250 MB.
+
+======================
+
+D: 29/07/2026
+
+
+versioning: enable Bucket Versioning to help protect against unintentionally/Accidental overwriting or deleting objects.
+
+Without Versioning:  
+--> if you edit file and uplaod multiple times with same name, we can see/get only most recently uploaded file. We cannot track changes happening on the file.
+--> If we delete, We cannot get the object back. it permanently deletes.
+
+With versioning:
+--> if you edit file and upload multiple times with same name, we can see/get all uploaded files. We can track changes happening on the files.
+--> When versioning is set to hide, You get a delete marker... Delete the delete marker, to get the object back.
+
+
+Delete : we get a delete marker, Delete the delete marker to get the object back.
+Permanently delete : Deletes completely, No recover option.
+
+
+=======================
+
+S3 Life Cycle Configuration Management Rule : LCR : 
+--> This feature helps us to transit data from one storage class to another storage class. 
+--> It also, helps us to delete data automatically.
+--> We can apply one transition for "current versioned" objects.
+--> We can apply another transition for "Previous versioned" objects.
+--> We do have option to exclude a particular version (most recent-1) from transition.. 
+
+===================
+
+
+Replication option: 
+
+SRR : Same Region Replication : Source and dest buckets should be in same region
+CRR : Cross Region Replication : Source and dest buckets should be in diff region
+
+--> Source bucket and destination bucket should enable with versioning. 
+
+* If our source bucket has some existing data, The Replication rule cannot replicate it.. We need to create a batch job.. or use sync command to replicate exiting data.. 
+
+--> Data automatically replicates after the replication creation. Existing data wont be replicate. use sync and then configure CRR/SRR.
+
+===================
+
+Object lock : This feature enforce S3 object deletion protection. 
+
+WORM : Write Once, Read many Model
+
+Governence Mode : Strictness: Moderate.. Permisisons can be bypassed if user has valid access.. root user can override and delete.. 
+
+Compliance Mode : Strictness: Highest.. Permisisons can't be bypassed.. root user can't override and delete.. 
+
+==================
+
+D: 30/07/2026
+
+
+Encryption : thos method converts plain text into cypher text or scrambled text. 
+
+
+Cryptography:
+
+Symmetric Encryption : Single key will be used for encryption& decryption.. Sign and verify.. 
+--> Both the sender and the receiver must hae this identical key.
+--> AES-256 (Advanced Encryption Standard)
+
+Asymetric Encryption: We will have a public key and private key. Anyone can use the public key to encrypt the data but only the private key user can decrypt it.
+--> RSA
+
+https://www.cisco.com/site/us/en/learn/topics/security/what-is-encryption.html
+
+---
+
+
+In-Transit Encryption / At Flight : When data is in transit state, data will be encryptd. AWS takes care. 
+
+Client Side Encryption / CSE : We can encrypt our data before sending it it aws. We are fully responsible for managing the encryption keys/material.
+
+Server Side Encryption / SSE : When data is in s3 platform, we can apply required encyrpion methods. Shared responsibility.. 
+
+
+1. Who manages/generates the key material.
+2. Who can decrypt the data.
+
+Server-side encryption with Amazon S3 managed keys (SSE-S3): 
+--> S3 generated and manages the key material.
+--> Whoever has access to s3 platform, they can decrypt the data. No addl permisisons required on ency key.
+--> THis is the only key support public data sharing.
+--> There is no option to view/manage this key material.
+
+======================
+
+KMS : Key Management Service : This is a service, helps us to create, rotate, store and control encryption keys.
+
+KMS DMK (Data Management Key / Default Master Key / Data Master Key):
+--> KMS generated and manages the key material.
+--> Whoever has access to s3 platform, they can decrypt the data. No addl permisisons required on ency key.
+--> We cannot make object public.
+--> There is no option to view/manage this key material.
+--> This key generates automatically when we start using AWS services.
+
+
+SSE-KMS CMK (Customer Managed Key).. 
+--> Customer has to create the KMS key.. KMS Service managed the key material..
+--> Only s3 servcie access is not sufficient, User should have permissions on Key usage as well, along s3 access.. 
+--> There is no option to view/manage this key material.
+--> We can rotate the key material.. We do this for every 365 days.. 
+
+step 1 : choose type : symmetric
+
+Step 2 : Alias/name
+
+Step 3 : Choose key Administrator 		: Avinash_T
+
+Step 4 : Define key usage permissions	: Avinash_T
+
+Step 5 : Review and create
+
+---
+
+SSE-KMS C (Customer Provided Key).. 
+--> Customer has to create the KMS key.. Customer has to provide/upload the key material..
+--> Only s3 servcie access is not sufficient, User should have permissions on Key usage as well, along s3 access.. 
+--> There is no option to view/manage this key material.
+--> We can rotate the key material.. We do this for every 365 days.. 
+
+https://www.youtube.com/watch?v=r17Z75TqjU0&t=860s
+
+step 1 : choose type : symmetric
+
+Step 2 : Alias/name
+
+Step 3 : Choose key Administrator 		: Avinash_T
+
+Step 4 : Define key usage permissions	: Avinash_T
+
+Step 5 : Review and create
+
+Step 6 : Download the material and wrap your key and upload it
+
+================
+
+AWS global infra : If we have . in the bucket name, we cannot use this feature. 
+--> AWS uses edge locations to perform data transfers.
+
+aws s3 cp huge-file.zip s3://bucetname/ --region ap-south-1 --endpoint-url https://avinash2807.s3-accelerate.amazonaws.com
+
+https://s3-accelerate-speedtest.s3-accelerate.amazonaws.com/en/accelerate-speed-comparsion.html?region=ap-south-1&origBucketName=amzn-s3-demo-bucket
+
+
+================
+
+S3 Static Website Hosting: 
+
+
+================
+
+D: 31/07/2026
+
+ARN : Amazon Resource Name
+
+Bucket ARN : arn:aws:s3:::aviz.tf.state.myproject
+Principal : user/group/everyone (user ARN, Everyone --> *)
+Effect : Allow / Deny : DENY
+Actions to take effect : PutObject, DeleteObject, DeleteObjectVersion, DeleteBucketPolicy, GetBucketpolicy
+
+
+Object level operation: arn:aws:s3:::aviz.tf.state.myproject/*
+Bucket level operation: arn:aws:s3:::aviz.tf.state.myproject
+
+
+https://awspolicygen.s3.amazonaws.com/policygen.html
+
+====================================
+
+
+S3's Default Performance:
+
+3500 PUT Operations per second per prefix : upload
+5500 GET operations per second per prefix : download/access
+
+--> TO improve the s3 performance, Use more prefixes.
+--> Add randomness to your objects, this improves search mechanism.
+
+=================
+
+S3 Events : 
+
+
+Lambda function : 	Run a Lambda function script based on S3 events.
+SNS topic 		: 	Fanout messages to systems for parallel processing or directly to people.
+SQS queue		:	Send notifications to an SQS queue to be read by a server.
+
+---------
+
+CORS Cross Origin Resource Sharing: A browser security guard that decides whether a website is allowed to request data from a different website. 
+
+https://aws.amazon.com/what-is/cross-origin-resource-sharing/
+
+https://www.youtube.com/watch?v=YrfDLrSVxQ8
+
+
+======================
+
+AWS Storage Gateway: It is an hybrid cloud storage service that bridges on-premise applications with AWS cloud storage. 
+
+
+1. S3 File gateway : NFS, SMB... Designed for S3 objects
+2. Amazon FSx file gateway : SMB : Amazon Fsx for windows.. Specifically for windows file shares.. 
+3. Volume Gateway : iSCSI : Amazon S3 / EBS snapshots.. 
+	--> Cached Volumes : Stores the primary dataset in Amazon S3. Only freq. accessed data stays in Local cache.
+	--> Stored Volumes : Stores the entire primary dataset locally on on-premise. Only freq-accessed data will be cached in local cache in storage gateway.
+
+4. Tape Gateway : iSCSI VTL : Amazon S3, Amazon Glacier Deep archieve.. 
+
+
+
+
+
+
+
+For Linux	: EFS (works with NFS protocol)
+For Windows	: FSx (Works with SMB protocol)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

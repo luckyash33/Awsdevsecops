@@ -1,0 +1,282 @@
+
+
+D: 09/07/2026
+
+L7	--> Application layer	--> HTTP, HTTPS : 
+L6	--> Presentation layer	--> TLS/SSL, ASCII, UTP-8 : Data Encrypts, Compress & Translate.. 
+L5	--> Session layer		--> Opens, Manages and closes the communications
+L4	--> Transport layer		--> TCP, UDP, TLS : MOves data between appls using port numbers - TCP gurantees delivery and ordering.
+L3	--> Network layer		--> IP, ICMP : Finds a path from one network to another network using IP Address. 
+L2	--> Data Link Layer		--> MAC/ Switches : Pocket connects between two connected devices on same network.
+L1 	--> Physical Layer 		--> Cable/Fible : The physical reality : 0s and 1s as electrical, radio ot lihht signal.
+
+
+learnaws.co.in/images/iam.mp4
+
+
+L4 Load Balancer : Network Load Balancer		: TCP, UDP, TLS --> IP:443 (It never opens the requests)
+L7 Load Balancer : Application Load balancer	: http, https : ALB Opens the req, sees the path, send the traffic to respective server.
+
+1. High Availability : We can span our instance across Multiple AZs.. 
+2. Single Endpoint / Single point of contact : CLient can hit one DNS endpoint / DNS Name.. LB takes care about the data routing backend to healthy instances only.
+3. Security : You no need to expose your instance.. We can add SSL/TLS Cert.. WAF integration.. 
+
+Vertical Scaling : Upgrading / Downgrading same instance capacity i.e; CPU, Memory.. 
+* We Need to stop ec2 instance if we want to perform Vertical scaling. 
+
+Horizantal Scaling : Adding more instances to scale our application.. 
+
+sudo dnf install httpd -y
+sudo systemctl enable httpd --now
+
+Make sure you use same SG for all the instance delivering same application.. 
+
+Create a SG for Load Balancer.
+http --> 80 : 0.0.0.0/0
+https --> 443 : 0.0.0.0/0
+8080 : 0.0.0.0/0
+
+---
+
+ELB : Elastic Load balancer
+ALB : Application Load balancer
+NLB : Network Load balancer
+CLB : Classic Load Balancer
+GLB : Gateway load balancer
+
+
+LB Requires a target group and SG.. 
+
+TG Creation: ALB
+
+Target Type: Instance
+Protocol : Http
+health check : /index.html
+
+Internet-facing : works over internet
+Internal : works within the aws vpc network. (Intranet)
+
+
+Web-SG 
+http : ELb-SG
+https : ELb-SG
+
+ELB-SG 
+http : 0.0.0.0/0
+https : 0.0.0.0/0
+
+======================
+
+D: 10/07/2026
+
+One Instance can be member of multiple TGs.
+Also, THere is no need to have same port at TG level and listerner level. (application can run on 80, listener can be on 8888)
+
+How you troubleshoot if your instance is unhealthy at targetgoup level. 
+1. Instance is in running state
+2. Verify instance security group, Required port is opned or not.!
+3. Verify health check path you configured. make sure the path exists in your ec2 instances. 
+4. Application running on configured port or not.!! If app is in stopped state, then no response to the traffic. 
+5. Make sure your load balancer is running with all subnets, that your ec2 instances are running. 
+
+
+ALB : Nested round robin algorithm : 
+
+ROund Robin : Default algorithm, Trafic route as a cycle
+least outstanding request LOR :  alb evaluate the instance existng requests and decides where the new  incoming request will go, based on requests count, it distributes. it balances the requests.
+Weighted Random : uses anomaly mitigation to identity http status codes and connection errors, then route the traffic intelligently. 
+
+--> Sticky session : session sticks to one of the instance for a defined period. 
+
+---
+
+** It is always recommended to enable logs at lB level. 
+
+Access Logs : Detailed logs of all requests made to our lb.
+Connection logs : detailed logs of all connections made to our lb.
+health check logs : HC Logs delivers detailed logs on HC for all targets in our LB TG.
+
+
+ALB supports "http" and "https" only. 
+--> We canot allocate a static/fixed Public IP. ALBs IP may change. 
+
+--> Works with microservices and containers.
+
+ALB supports path based routing. 
+/api/* --> backend TG
+/ui/welcome.html --> frontend TG
+
+
+==============
+
+NLB : Network Load balancer : Layer 4 LB.. This supports only "TCP, TLS & UDP" Protocols. 
+NLB supports millions of requests per seconds with ultra low latency. 
+
+--> NLB supports fixed Public IP. 
+
+NLB works with Flow hash algorithm..  It will ha something called 5-tuple ingredients.. 
+
+Source IP Address : who send it
+Source Port 
+Destination IP Address : NLB Public IP Address
+Destination port : 80, 443
+Protocol : TCP / UDP
+
+using above info, it prepares a hashing, then chooses the target.. 
+
+=============
+
+1. Launch an ec2 insatnce, make it as webserver.. 
+2. create an EFS and mount it to ec2 instance documentroot path /var/www/html/, make it perm mount.. 
+3. Create some web content into this instance documentroot path. Stop and start instance and veify output. 
+4. Create a goldenAMI and launch an ec2 instance and verify.
+5. Create a TargetGroup and "dont add any ec2 instances". 
+6. Create a LoadBalancer and verify the out. Should not deliver any output (5** status error)
+7. Create a launch template with GAMI (Step-4), and choose "instance Type, Keypair and Security Group".. 
+* Dont select Subnet.
+
+
+90% times --> B2B Applications (Business to Business)
+
+ASG : Auto Scaling Group: 
+
+Balanced best effort: If launches fail in one Availability Zone, Auto Scaling will attempt to launch in another healthy Availability Zone.
+
+Balanced only : If launches fail in one Availability Zone, Auto Scaling will continue to attempt to launch in the unhealthy Availability Zone to preserve balanced distribution.
+
+
+
+1. Manual Scaling : Manually adjusting the desired capacity. 
+
+2. Scheduled Scaling : Preductable but want to automate the Adjusting the desired capacity.
+
+3. Automatic Scaling : Based on workload i.e; cpu, memory, req count.. Min: 1 Max: 10
+
+	3.1 Simple Scaling
+	3.2 step scaling
+	3.3 Target trcking scaling ***
+
+
+if you want to update the instance cinfiguration i.e; instance family, Update the Launch template and depend on Instance refresh.
+
+if you want to update the backend ec2 instance softwares/programs, then Take a base instance, Install/update, then create a goldenAMI, then update the launch template, then perform the instance refresh.
+
+If you want to update the web content delivering via ec2 instances, connect to one of the instance and replace the content into efs mounted documentroot path, so all instances get the updated data. 
+
+===============
+
+D: 13/07/2026
+
+
+Vertical Scaling : Adding / removing resources (cpu, memory) on the existing instance. 
+
+There is no option to perform vertical scaling without stopping an ec2 instance. 
+
+
+CRQ : Change Request : t3.small --> c5.xlarge
+
+CAB / Change Advisory Board : 
+
+Non-Prod : 2 Calls
+prod : 1 call
+
+
+
+--> When the CRQ is planned to implement.? Ans: Saturday Morning 05 AM - 09 AM
+--> is that instance client facing.? Ans: yes: Did client informed.? No: Internal
+--> Does this got clients/ PMs Budget approval.? 
+--> Does this change require downtime.? Ans: Yes, Duration: 6 hour.. 
+--> Do you have any rollback plan.? Ans: Yes (undo the changes)
+--> What are all the teams involved, Did we created tasks for them.? Ans: Yes
+--> If its Prod CRQ, oes this already implemented and monitored in UAT env.? Ans: Yes (UAT --> CRQ) (SDLC : dev, qa, sit, uat, prd)... We have to monitor atleast 2 weeks post crq in UAT.. 
+--> Any pre-implementation steps.? Ans: yes (backup, stopping services)
+--> Which team to perform change validation/Sanity check..? Ans: app support, prod support.. 
+--> e-crq : Emergency CRQ.. 
+
+IMT : Incident Management Team : 
+
+p1 --> war room : e-crq, IMT, 15 min communication : response: 15 min, Resolution: 4 Hrs (business/revenue loss)
+p2 --> bridge call, IMT, 1 hr response, 8 Hrs resolution time..b usiness impact, that may cause p1 later..
+p3 --> Email update, 4 hrs response.. 2 days resolution..
+p4 --> low priority.. 8 hrs response and 5 days resolution.. 
+
+Monitoring --> cloudwatch, 3rd party (datadog, dyantrace, site24x7, middleware.io)
+incident --> 
+SR --> 
+CRQ --> 
+Task --> 
+bridge call --> 
+NOC Team
+Production support
+Application support
+RCA --> Root Cause Analysis (reason for the issue, how to remediate future occurances)
+PIR Call - Post Incident Report : 
+
+
+pip : perfomance improvement program : 
+
+on-call handover : 
+
+
+Housekeeping Call : Review last 30 days Incidents/tickets/ AWS recommendations / Periodical activities.. 
+
+====================
+
+Placement groups : 
+
+** Cluster PG : All instance run in same physical rack with same network and power connection. ultra low latency between these instances.
+
+Partition PG : Every Partition will have its own power conenction and network conenction.. 
+
+Spread PG : every instance will have its own power and networtk connection..
+
+=======
+
+Virtualisation : AWS uses "Nitro" Hypervisor.. AWS Used, still using "XEN hypervisor" for ld class instances. 
+
+EC2 tenancy Options : 
+
+Default ec2 tenancy : Shared 
+Multiple instances shares same HW
+
+
+Dedicated tenancy: Underlying hardware wont be shared with multiple customers. it will be allocated to only one customer.
+
+	Dedicated Instance : Underlying hardware wont be shared with other cusromers, But we dont get underlying hardware visibility. 
+
+	Dedicated Host : Underlying hardware wont be shared with other cusromers, We get underlying hardware visibility, so we can apply licenses at hardware i.e; cou cores, memory slots.. 
+
+----------
+
+Ec2 has 3 types of status checks.
+
+System Status check : 
+Instance status check : 
+EBS volume status check :
+
+
+----
+
+EIP : Elastic IP Address : 
+
+13.232.234.227
+65.1.111.155
+13.206.215.30	--> EIP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,275 @@
+
+
+https://aws.amazon.com/free
+
+Free Plan : You wont get charged untill unless you upgrade your aws acocunt to paid plan. 
+AWS Provides 200$ credits (100$ when account got created.. allocates 5 tasks, Every task gives us 20$)
+Validity : 6 Months
+Credits : 200$
+Limitation : We should use only the services aws allows, by default. 
+
+
+Paid Plan : We get 200$ credits, and we are allowed to use free and paid services. You need to pay for the paid services only.
+Credits : 200$ (6 Months)
+
+----------
+
+Root user email address : Full Access on AWS Account.. He can do account management (i.e; closure, transfer, payment method change).. 
+
+
+Email Address : avizway@gmail.com 
+Account Name : aviz-wtc-uat
+Confirm the code and set strong password
+
+SDLC Process : Software Development Life Cycle : 
+POC : Proof of concept : Sandbox / Training / POC Account
+Dev / Development : Developers start works here when project is ready.
+QA / Testing : Developers developed application tests here.
+UAT / Pre-prod : Similar to production environment.. 
+PROD / Production : Delivering application to end user/customer.. 
+
+Account Type : Personal (or) business/Professional : Personal
+Payment Verification : 2 INR will deduct, and refund back to us.
+Identity : aadhar / PAN Card : Make sure to provide same name as existed in your identity proof.
+Phone Verification : 
+
+
+----------------
+
+Support Plans : Helps us to get assistance from AWS. 
+1. Account and billing related queries : Activation, Service activation, Billing info.. Free for everyone.
+2. Technical Assistance : Depends on support plan. 
+
+
+Basic Support Plan : Free
+--> Included for every account automatically.
+--> 24/7 access to aws documentaiton and AWS Re:Post, AI First troubleshooting agent, Amazon Q, Amazon kiro-cli
+--> Account and billing related, 24/7 support via "web / Phone / Chat"
+--> No Technical support from AWS Engineers / backend team.
+--> Limited Trusted advisor checks.
+
+Business Support Plan : Starts from 29$/Month
+--> AWS Recommended Minimum plan for production workload.
+--> AI powered 24/7 support
+--> 24/7 phone/chat/email contatct method with aws support engineers. 
+--> Critical Case Response : < 30 Min
+--> Full Trusted advisor checks.
+--> unlimited support cases, Any user can create (IAM / Root)
+
+
+Enterprise Support Plan : Starts from $5000/Month
+--> Recommended plan for production critical workload. 
+--> Designated TAM (Technical Account Manager) - Personal AWS Expert
+--> Critical Case Response : < 15 Min
+--> Annual architectural reviews and operational reviews along with well architeture framework review
+--> Full Trusted advisor checks.
+--> unlimited support cases, Any user can create (IAM / Root)
+--> Multi Account support (We can use one support plan for 1000s account also)
+
+Unified Operations : From $50,000/Month
+--> Recommended if you have mission-critical workload that requres enhanced resilience and application specific experts from AWS.
+--> Everything from "Enterprise Support Plan"
+--> Critical response : < 5 minutes
+--> TAM + Domain Specialist + Incident management
+
+
+Case Severity : 
+general guidance : < 24 Hrs
+System Impaired : < 12 hrs
+Production systame Impaired : < 4 hrs
+Production System Down : < 1 Hr
+Business Critical system down : < 15 Min
+Mission critical Business system down : < 5 Min
+
+-----
+
+99.999999999 % Durabulity --> 0.000000001 --> Replicate
+
+-----------------
+
+aws global infrastructure: 
+
+Region : No technical defination for the word called region. Its just a physical location or geographic locayion. : 39 Geographic Regions.. 
+
+AZs / Availability Zones : 123 Availability Zones as of June 2026. Every region has atleast 2 AZs.. 
+
+DCs: location where we place lot of servers and it needs physoical security, cooling system.. 
+
+Latency : Time to get response from the server for a roundtrip. 
+TTL : Time to live : 
+
+It is recommended to pick the region near to end customers geo pgrahial location. 
+
+CDN (Content Delivery Network) / Edge Locations / Cloudfront : 
+
+hyd, mumbai, new delhi, chennai, kolkata --> Vz
+
+============
+
+Enable MFA on root account : 
+
+Root user will have unrestricted access on our aws account. He can create / modify  any service or any resource.  (Treat him as CEO of an organisation)
+
+Username & Password : 
+--> Inbuilt options (Face recog / opattern / fingerprint / yuby2key)
+--> Physical MFA Devices : we need to purchase
+--> Virtual MFA using Mobile Phone (Google authenticator, MS Authenticator)
+
+root cred already handed over to "Project manager" or "Product owner"..
+
+We need to create an IAM user who has access on AWS (AdministratorAccess) or IAMFullAccess..
+
+Can we share root cred to multiple users.? 
+
+Least privilages mechanism : Provide permissions, required to perform his job. NO addl permisisons / no less permisisons. 
+
+Lead : AWS Account Full Access : username & pwd + AdministratorAccess:
+DBA : THis team needs "RDS" service access : username & pwd + RDSFullAccess:
+Storage : THis team needs "S3" service access : username & pwd + S3FullAccess:
+Network : THis team needs "vpc" service access : username & pwd + VPCFullAccess:
+User Management : THis team needs "iam" service access : username & pwd + IAMFullAccess:
+
+
+IAM User Creation Steps :
+
+1. Choose Username, Password (autogenerated - manual setup), Enforce password reset when login for the first time.
+2. Permisions setup : 
+--> Create a group, add permisions at group level, add user to group.
+--> COpy any existing user permissions.
+--> Attach policy directly to the user.
+
+
+--> We should enforce strong password polocies to IAM users. 
+
+
+https://avizway8.signin.aws.amazon.com/console
+https://828477980115.signin.aws.amazon.com/console
+
+Account Alias : avizway8
+Username : s3admin
+
+=============================
+
+D: 11/06/2026
+
+Authentication : who are you.? : username and Password
+
+Authorization : what you can do.? : Permissions
+
+
+Every IAM user will have 2 types of Accesses: 
+
+1. Management console access : Browser.. Username & Password.. 
+2. Programatic Access : 
+
+UserCase : I need an IAM user, who has access on S3 and Ec2 Service. 
+
+UserCase : I need an IAM user, who has access on  iam, s3, ec2, rds, vpc, cognito, apigateway, lambda, dynamodb, cloudwatch.. + 
+
+UseCase : I need an IAM user, who has access to all the AWS services.. But not on S3 Service.. 
+
+
+3 Types of Policies: 
+
+1. AWS managed Policies - Job Function : AWS PRepared based on standard jobs we have in market.
+2. AWS Managed Policies : AWS Preapred based on the service. 
+3. Customer Managed : Policy created by customer based on his own requirements.. 
+
+*We cannot edit/delete "aws managed policies". 
+
+E : Effect : allow/deny
+A : Actions : (servicename:ActionName) : s3:* / s3:PutObject / s3:GetObject
+R : Resource : * / (arn:aws:s3:::avinash-11062026)
+
+ARN : Amazon Resource Name : arn:aws:s3:::avinash-11062026
+
+Customer managed policy has character limit: 6,144 characters.. 
+
+===========
+
+Usecase 3 : I need an IAM user, who has access to all the AWS services.. But not on S3 Service.. 
+
+Create an IAM user, Add "AdministratorAccess" 
+Create a Policy "Deny"
+
+E : Deny
+A : s3:*
+R : *
+
+You allow 100 times at any level (user, group, resource), But defined "Deny" at any level.. : DENY will take effect.. 
+
+https://checkip.amazonaws.com/
+
+
+====================================
+
+D: 12/06/2026
+
+--> Inline Policy : 
+
+--> Inlined/allighed to one particular entity, we can use when we hit "max attached policy limit" or max character limtis with customer managed policies. 
+--> We need a policy only for one particular user/role (entity). No requirement of resusability. 
+--> Inline policies are hard to track. 
+
+------
+
+Permissions boundary : We can setup max permissions for a user, even if we have addded more permisisons than he deserved, permissions boundary will limit his activities.
+
+Guardrail = Permisisons Boundary is guardrail for IAM users, We can define max permisisons an IAM user / role to aquire. 
+
+------
+
+IAM User activity tracking : 
+--> We have an AWS service named, "cloudtrail".. THis service enabled by defaut, in all aws accounts. It stores last 90 days activities.. 
+
+We can filter the logs using "username", "readonly : true/false", "EventName", "eventsource"... We can filter using alsolute time and realtive time range.. 
+
+** Region specific services (ec2, s3, rds, vpc) logs stores in specific regions..
+** Global services (iam, cloudfront) logs stores in "N.Virginia".. 
+
+----
+
+IAM Credntials Report : 
+As part of  AWS housekeeping activies, we need to investigate user creation, user last login, user mfa status.. 
+
+----
+
+IAM Access Analyser : 
+As part of  AWS housekeeping activies, we need to investigate what are the resources shared with other aws accounts i.e; server backup, s3 bucket, db backups.. 
+
+External access findings : Identify resources shared with an external entity.
+Internal access findings : Identify internal IAM users and roles that can access specific resources
+Unused access findings : Identify IAM users and roles with unused access
+
+----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

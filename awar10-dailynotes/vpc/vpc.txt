@@ -1,0 +1,438 @@
+
+
+VPC : Virtual Private Cloud : network for our workload
+
+Default VPCs all subnets are public Subnets. By default, all instances that runs in defucalt VPC gets internet and these are accesable over the internet. 
+
+CustomVPC : We have control on subnets and its internet settings. 
+
+
+IPv4 : 32 bit : 2^32 : 4.3 billion unique IPs **
+IPv6 : 128 bit : 2^128 : 340 unidecillion unique IPs
+
+
+Public IP : Works over internet.. Its unique across the globe.. $$$
+Private IP : Works within the network.. No COst/Free.. 
+
+DHCP : Dynamic Host Configuration Protocol : It allocates an IP address to the devices added to the network. 
+Address lease time : specific time that an IP is bound to that host. it may change after lease time complete. 
+
+IPv4 has total 5 classes.. 
+
+Class A	: 0 - 126		: 0.0.0.0 - 126.255.255.255
+Class B	: 128 - 191		: 128.0.0.0 - 191.255.255.255
+Class C	: 192 - 223		: 192.0.0.0 - 223.255.255.255
+
+Class D	: 224 - 239		: 224.0.0.0 - 239.255.255.255
+Class E	: 240 - 255		: 240.0.0.0 - 255.255.255.255
+
+127.0.0.0 --> loopback / localhost
+
+
+IPv4 is 32 bit ===> 8 bit . 8 bit . 8 bit . 8 bit
+
+ifconfig
+ipconfig /all		--> windows
+
+Class A	: 0 - 126		: 0.0.0.0 - 126.255.255.255
+Class B	: 128 - 191		: 128.0.0.0 - 191.255.255.255
+Class C	: 192 - 223		: 192.0.0.0 - 223.255.255.255
+
+Class D	: 224 - 239		: 224.0.0.0 - 239.255.255.255
+Class E	: 240 - 255		: 240.0.0.0 - 255.255.255.255
+
+Private IP Addresses are free to unse internally.
+
+Class A	: 10			: 10.0.0.0 - 10.255.255.255
+Class B	: 172			: 172.16.0.0 - 172.31.255.255
+Class C	: 192			: 192.168.0.0 - 192.168.255.255
+
+
+Network : Group of interconnected devices, that can communicate each other. 
+Host : A device part of a network, that is consuming an IP address. 
+
+
+How many Networks you required.? Ans: 1
+How many devices/hosts you are going to add that netowrk.? Ans: 50
+
+Class A : N.H.H.H		: we can create 127 networks and each network supports 16 million hosts
+Class B : N.N.H.H		: we can create 16,000 networks and each network supports 65,000 hosts.
+Class C : N.N.N.H		: we can create 2 million networks and each network supports 256 hosts.
+
+
+125.0.0.0		--> 
+125.0.0.1
+125.0.0.2
+125.0.0.255
+125.1.0.0
+125.1.0.1
+125.1.0.255
+125.2.0.0
+...
+...
+125.(0-255).(0-255).(0-255)
+
+
+class B: 172.16.0.0
+
+128 - 191			--> network
+128.0
+128.1
+128.2
+128.255
+129.0
+129.255
+130
+..
+..
+191.0
+191.1
+191.255
+
+
+128.1.0.0
+128.1.0.1
+128.1.0.2
+128.1.1.0
+128.1.1.1
+128.1.255.255
+
+128.1.(0-255).(0-255)
+
+
+192.168.0.0
+192.168.0.1
+192.168.0.2
+192.168.0.3
+192.168.0.255		--> 256 IPs
+
+===================
+
+/32		: 32 - 32 = 0 = 2^0 = 1
+/31		: 32 - 31 = 1 = 2^1 = 2
+/30		: 32 - 30 = 2 = 2^2 = 4
+/29		: 32 - 29 = 3 = 2^3 = 8
+/28		: 32 - 28 = 4 = 2^4 = 16			--> Minimum CIDR our VPC Supports
+
+/24		: 32 - 24 = 8 = 2^8 = 256 IPs
+
+/22		: 2^10 = 1024
+
+/16		: 2^16 = 65536						--> Max a VPC CIDR supports /16
+
+
+We cannot use all the IPs which a subnet gives.. 
+In any network, including our home networks, By default, 2 IPs reserved.. First IP (network ID) and Last IP (Broadcasting IP)
+
+Along with above 2 Ips.. 3 More IPs will be reserved by AWS.. 
+--> VPC Router
+--> AWS DNS
+--> Future Use
+
+So, Total 5 IPs will be reserved by AWS.. So now usable IPs count will change.. 
+
+/28 --> 16 IPs - 5 AWS Reserved = 11 Usable IPs
+/24 --> 256 IPs - 5 AWS Reserved = 251 Usable IPs
+/16 --> 65536 IPs - 5 AWS Reserved = 65531 Usable IPs
+
+
+20 IPs ..??? 		: /27 : 32 - 5 = 27 Usable IPs
+
+200 IPs ..??		: /24 : 256 - 5 = 251 Usable IPs
+
+2000 IPs ..??		: /21 : 2048 - 5 = 2043 Usable IPs
+
+
+1. How big VPC we want for our Network.?
+
+2. How many subnets we need in our VPC.?
+
+	2.1 How many Public Subnets.? Approx count for public subnet.
+	2.2 How many Private Subnets.? Approx count for private subnet.
+		2.2.1 ANy Private subnet, that require internet.
+		2.2.2 Any Private subnets, that doesnt required internet.
+
+3. Any IPs we need to reserve for future usage.?
+
+
+========================
+
+D: 17/07/2026
+
+Public Subnet : Subnet which is accesable over Interenet. (Load Balancer / Jump Server)
+Private SUbnet : No Access to internet / Not accesable over internet.
+
+1. How big VPC we want for our Network.? Ans: 400 (min 100 - 300) : /23 --> 512	--> 
+
+VPC CIDR : 192.168.0.0/23
+
+class A : 10.0.0.0/23
+Class B : 172.16.0.0/23
+Class C : 192.168.0.0/23
+
+IPAM : IP Address management : Excell / Solarwind IPAM
+
+2. How many subnets we need in our VPC.?
+
+	2.1 How many Public Subnets.? Approx count for public subnet.		(WEB --> LB/Jump)
+		CVPC-WEB-1a	: 192.168.0.0/27
+		CVPC-WEB-1b	: 192.168.0.32/27
+		
+	2.2 How many Private Subnets.? Approx count for private subnet.		
+		2.2.1 ANy Private subnet, that require internet.				(APP --> application servers)
+		
+		CVPC-APP-1a	: 192.168.0.64/26
+		CVPC-APP-1b	: 192.168.0.128/26
+		
+		2.2.2 Any Private subnets, that doesnt required internet.		(DB --> DB Srs)
+		CVPC-DB-1A	: 192.168.0.192/26
+		CVPC-DB-1B	: 192.168.1.0/26
+
+3. Any IPs we need to reserve for future usage.?
+		192.168.1.64/26
+		192.168.1.128/25
+
+
+Step 1 : Create a VPC.  CIDR : 192.168.0.0/23
+
+When we create VPC, automatically these will create : 
+Default Security group, Default Network ACL and Main Route table.
+
+Step 2 : Create Subnets with in our CustomVPC.
+
+		CVPC-WEB-1A	: 192.168.0.0/27	: ap-south-1a
+		CVPC-WEB-1B	: 192.168.0.32/27	: ap-south-1b
+		CVPC-APP-1A	: 192.168.0.64/26	: ap-south-1a
+		CVPC-APP-1B	: 192.168.0.128/26	: ap-south-1b
+		CVPC-DB-1A	: 192.168.0.192/26	: ap-south-1a
+		CVPC-DB-1B	: 192.168.1.0/26	: ap-south-1b
+
+Step 3 : Create IGW / Internet gateway and attach it to the VPC. 
+One IGW supports only one VPC association. 
+
+Step 4 : Create Route tables based on our application requirements. 
+
+public-route : Create a route table, Associate CVPC-WEB-1A & CVPC-WEB-1B to this route table. 
+--> Add a route 0.0.0.0/0 via Internet Gateway
+
+pvt-wi-route : Create a route table, Associate CVPC-APP-1A & CVPC-APP-1B to this route table. 
+
+pvt-woi-route : Create a route table, Associate CVPC-DB-1A & CVPC-DB-1B to this route table. 
+
+Step 5 (Optional) : Choose VPC, Go to Settings, Edit VPC settings --> "Enable DNS hostnames"
+
+Step 6 (optional) : choose public subnets, go to 'edit subnet settings" enable --> Enable auto-assign public IPv4 address.
+
+===================
+
+Testing custiom VPC.
+
+1. Launching an ec2 instance in customVPC PUblic Subnet (web sn).. Will try to connect from my laptop.. Once connected, will verify internet status. 
+
+2. Launching an ec2 instance in customVPC Private Subnet (APP sn).. Will try to connect from my laptop and it fails... Connect from the JUMP Server.. Once connected, will verify internet status. 
+
+=================
+
+Requirement : I need Internet connectivity for my Private subnet instances. (Download patching, accessing data hosted over internet)
+
+NAT Gateway (Network Address Translator) : NAT helps to provide internet to private subnet instances, without exposinbg resources directly over internet. 
+
+Regional : AWS scales our NAT GW across Multiple AZs.. One AZ downtime wont effect the NAT Operations.
+Zonal : NAT Creates in Specific AZ.. (Less HA, we loss internet if we face any issues with AZ)
+
+
+=================
+
+D: 18/07/2026
+
+Network ACLs : 
+
+
+
+Security Group: SG act as firewall at Instance level. SG are stateful.. We need to take care about the inbound rules. By default, We allow all traffic on outbound rules. 
+
+NACL : Network Access Control List : Act as firewall at Subnet level. One subnet can contains multiple instances.
+--> NACL is stateless, We need to open traffic InBound and outbound also. 
+--> Traffic flow required ephemeral ports. 
+--> NACL wont track taffic receiving and leaving ports. 
+--> It uses Ephemeral ports (Temporary ports)
+
+Inbound : Traffic coming into the subnet from outside. 
+* Traffic coming from internet to connect your ec2 instance / access your webpage..
+* Traffic from another subnet, entering into our subnet.
+* Traffic from on-premise entering into subnet.
+
+Outbound: Traffic leaving your subnet.. 
+* Webserver running in our subnet is responding back to the client. 
+* Ec2 instance, inside our subnet is accessing internet (google / ftp / fb). 
+* Traffic going out to the outer world. 
+
+
+Default Network ACL behaviour is "allows everything" in inbound and outbound.
+
+==================
+
+Endpoints : 
+
+Gateway Endpoint : Free, Only data transfer cost.. AWS Manages.. 
+Interface Endpoint : Per hour cost, Data traffic flows over an ENI.. We manage.. 
+
+
+Public subnet ec2 instances can access s3 service, if we attach an IAM role. 
+Private Subnet ec2 instances can't access s3 service, Even if we attach an IAM role. Reason: We dont have internet access. 
+
+
+---
+
+Instance connect secured configuration.
+
+Instance endpoint runs in customVPC Public Subnet.. 
+
+1. Create a SG for Instance ENdpoint.. 
+
+Inbound: No need to open anything
+Outbound: SSH / 22 --> VPC CIDR RANGE (192.168.0.0/23)
+
+2. EC2 Instance SG (Which we are trying to connect over Instane Endpoint)
+
+Inbound: Open Port 22/SSH --> EP-SG
+
+----
+
+Same as Instance connect, if you want to conect using "System manager Session Manager", You can create endpoints
+1. ssm
+2. ssmmessages
+3. ec2messages
+
+===================
+
+D: 20/07/2026
+
+VPC Peering: This feature helps to enable communication across VPCs.
+
+Requester VPC and Accepter VPC can be in same region in same account.
+Requester VPC and Accepter VPC can be in other region in same account.
+Requester VPC and Accepter VPC can be in same region in account-1 and account-2.
+Requester VPC and Accepter VPC can be in other region in account-1 and account-2.
+
+
+If requester and accepter VPCs CIDR ranges are same, we cannot create VPC Peering. 
+VPC Peering is non-transitive peering.
+
+					Requester VPC					Accepter VPC
+					
+Acc ID				655700896650					982424467695
+VPC ID				vpc-013984fc3f33fd2a2			vpc-02eff01081fa819f9
+CIDR Range			192.168.0.0/23					172.31.0.0/16
+region				ap-south-1						us-east-1
+
+Step 1 : In Requester VPC, Create a peering connection with all accepter VPC, region, account id info. 
+
+Step 2 : Switch to Accepter account, and accept the peering connection. 
+
+Step 3 : At requester VPC, update the route table with accepter CIDR range, via peering id.
+
+Step 4 : At Accepter VPC, update the route table with requester CIDR range, via peering id.
+
+telnet <private-ip> <port>
+
+==================
+
+Transit Gateway : Helps to establish the connection between VPCs. Helps for large number of VPCs. Works in hub and spoke model.
+
+Step 1 : Create a TGW in Central networking account. 
+
+Step 2 : using RAM (resource access manager) servcie, share the TGW with other accounts. then, switch to other account and nvigate to RAM service and accept the resource share. 
+
+Step 3 : In Central NW account, Create a TGW attachment with local VPC Subnets. 
+
+Step 4 : In Member account, Created a TGW attachment with same account VPC.  
+
+Step 5 : Switch to member account and choose the shared TGW atachemnt (Step 4 shared) and accept it.
+
+Step 6 : Edit member accounts route table with Central NW account's VPC CIDR range. 
+
+Step 7 : Edit central NW vpc account route table with member accoutn VPC CIDR.
+
+
+=====================
+
+D: 21/07/2026
+
+Can we extend existing VPC CIDR range.?
+Ans: Yes, New CIDR range should not conflict with existing VPCs CIDR range. also, it should be in same class. 
+
+Can existing VPC instances, communicate with new subnet's ec2 Instances.?
+Ans: yes, We get a local route, this local route helps to establish communication.
+
+---
+
+VPN : Virtual private Network : 
+
+site-to-site VPN (s2s VPN): 
+
+cisco meraki
+dell sonic
+forgigate
+palo alto
+yamaha
+watchguard
+checkpoint
+barracuda
+f5
+
+
+step 1 : Create customer gateway : We need to provide our office firewall publicip address. 
+Step 2 : AWS End needs Virtual private gateway : 
+Step 3 : using CGW and VPGW, create a S2S vpn connection and download the configuration based on your orgnisation firewall manifacturar.. 
+
+Handover it to firewall team, they need to configure the settings to establish the connection to the AWS tunnels.
+
+-------------
+
+NAT Gateway : IPv4
+
+Egress only Internet Gateway : Same as NAT gateway, Provides internet to private subnet ec2 instances, Works with IPv6.
+
+-------------
+
+AWS Direct Connect : A dedicated physical network connection, between AWS network and our corporate network. This eliminates our traffic flow to aws over public internet.. 
+1 GBps, 10 Gbps.. 
+
+
+===============================================================
+
+
+
+How many subnets and why.?
+Min 6 subnets.. 2 web, 2 app, 2 db, 2 lambda
+
+pvt subnet required internet.?
+NAT Gateway
+Endpoint
+NACL : 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

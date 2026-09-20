@@ -1,0 +1,864 @@
+
+EC2 : Elastic Compute Cloud : 
+
+Server = Instance = Azure VM = GCP Compute Engine = Virtual Machine
+
+CAPEX : 
+OPEX : 
+
+EC2 Supports Only "Server Class OS".
+Server Class : RHEL, Ubuntu, Windows server  2025, Suse
+Client Class : Windows 10, windows 11, ubuntu desktop : Use AWS Workspace service
+
+
+1). On-Demand Instances : Pay per second (pay as you go).. No long term commitment with AWS.. 
+
+--> Dev / Testing
+--> Short term projects
+--> Unpreditable workloads
+
+2). Reserved Instances (RI): Commitment for 1 yr / 3yrs and get signicant discounts compared to on-demand.  (upto 72% discount compared to On-Demand)
+--> When you know what configuration you want to use for long term.
+--> Stable and predictable production workloads.. 
+
+We have 2 Purchase options : 
+--> Standard RI : We cannot change the configuration for selected duration.
+--> Convertable RI : We can change configuration during the commitment period.
+
+We have 3 Pricing Models : 
+FUll Upfront : Pay full amount now, No need to pay anything monthly basis. 
+
+Partial Upfront : Pay 40-60% of amount now.. AWS reduses the hourly price, Based on your usage, you need to pay monthly, but with redused hourly price.. 
+
+No Upfront : No need to pay anything as upfront, pay everything on monthly basis. 
+
+
+3). Savings Plan : This is a modern replacement/improvement over RIs. AWS introdused this to reduse the RIs complexity. 
+
+We are commiting with AWS on hourly pricing. You are giving commitmemnt to aws, that you spend fixed amount per hour on compute. AWS provides good amount of discount.
+
+	3.1 Compute Savings Plan : We can use this with multiple services : ec2, lambda, fargate.. We can change Instance family/ size / region / os / Azs.. 
+	3.2 EC2 Instance Savings Plan : we can use this with only EC2, Specific to the particular region.. 
+	3.3 SageMaker Savings Plan : AI/ML related workload. 
+	3.4 Database Savings Plan : Database related workload i.e; rds, elasticache
+
+4). Spot Instances : AWS offers its unused capacity at huge discount.. BUT.. AWS can terminate/Delete the instance anytime with just 2 min interruption warning.. 
+Temp batch job, Rendering, Batch jobs, Easily recoverable jobs, Interruptable jobs.. 
+
+--> We have to bid our price against AWS spot price.. We have pricing history view option.. 
+--> Our price should be equal or higher than AWS price.. So we get instance..
+
+5 Hours 55 minutes.. 
+
+Price Not Increased, "YOU TERMINATED" instance, You chaged for 5 Hours 55 minutes
+Price Increased, "AWS TERMINATED" instance, You chaged for 5 Hours only..  (We dont get charged for partial hours)
+
+EC2 --> Region Specific
+
+=================================
+
+D: 15/06/2026
+
+How to launch Windows EC2 Instance and how to connect.?
+
+OS
+RAM
+Processor / CPU
+Harddisk (ssd/hdd)
+
+
+t3.micro
+t4g.large
+
+t --> family
+3 --> generation (Higher generation = better performance with better pricing)
+micro --> Size of Instance i.e; cpu, Memory/RAM (nano, micro, medium, small, large, xlarge, 12xlarge)
+
+i --> intel Processor
+a --> amd processor
+g --> Graviton processor
+
+
+General Purpose 	: Balanced CPU + Memory + Network 		: T / M
+Compute Optimised 	: More CPU powered Instance 			: C
+Memory Optimised 	: Lots of RAM - Data lives in Memory	: R, U, X, Z
+Storage Optimised 	: High IOPS / High Throughpur storage	: I, D, H 
+Accelerated Computing : GPU Supported Hardware				: P, G, Trn
+High-performance Computing : High-performance Computing		: hpc
+
+SDLC : 
+Dev / QA : Slightly lower config : t4g.large, t4g.medium, m5.large
+
+UAT / Prod : We always matches prod config in UAT env also.. : 
+--> m5.large, r5.xlarge, c7i.large
+
+==========================
+
+Step 1 : Add Tags (Name, Project, ClientID, POC-Point of Contact, Cost Center, OS/Paltform)
+Name = MyServer
+Project = project X
+ClientID = AAZAA
+POC - Point of Contact = Avinash
+Cost Center = AAZAA
+OS/Paltform = Windows / Linux
+
+Step 2 : Choose AMI (Amazon Machiene Image) : Selecting a pre-installed and configured OS.. : Microsoft Windows Server 2025 Base
+
+Step 3 : Choose the Instance Type : 
+
+t3.micro
+t3.small
+c7i-flex.large	--> Choose this
+m7i-flex.large
+
+Step 4 : Choose / Create a KeyPair
+
+Keypair : Combination of Public and Private Key
+Public Key = Lock						--> AWS keeps it, Automatically stores inside ec2 instance (AWS)
+Private Key = Key to open the lock		--> Downlaods to our laptop automatically (YOU)
+
+Windows os : We can use this for password retrival (.pem)
+Linux os : use key directly and connect (.pem and .ppk)
+
+--> One Keypair can be used with multiple instances. 
+
+
+Step 5 : Network Configuration
+
+Firewall / Security Groups : A security group is a set of firewall rules that control the traffic for your instance. Add rules to allow specific traffic to reach your instance.
+
+Ports : 0 - 65535
+
+windows : RDP : Remote Desktop protocol : 3389
+Linux : SSH : Secure Shell : 22
+web : http : 80
+secure web : https : 443
+DNS : 53
+Mysql : 3306
+mssql : 1433
+Postgresql : 5432
+ftp : 20 & 21
+
+From where you want to connect: 
+1. Anywhere  (0.0.0.0/0 :::/0)
+2. Custom
+3. MyIP (Picks currently connected network IP)
+
+
+Step 6 : Choose storage.. Go with Default 
+Windows: 30 gb
+Linux : 8 gb / 10 gb
+
+-----
+
+To connect to windows instance, we need to have supported tool
+
+1. windows os : Inbuild remote desktop tool 
+
+search --> "remote desktop" --> open app and Provide instance Public IP, Username, password.. popup "yes"..
+open run (win + r) --> type "mstsc" --> Click enter --> Provide instance Public IP, Username, password.. popup "yes"..
+
+2. mac os : windows app 
+
+==========================
+
+D: 16/06/2026
+
+Linux Instance Launch : 
+
+Step 1 : Add Tags
+Step 2 : Choose an AMI (Amazon Machiene Image) : Amazon Linux 2023 
+(Amazon Linux Default username: ec2-user, redhat: ec2-user/redhat, ubuntu: ubuntu)
+
+Step 3 : Choose the Instance Type : t3.micro
+
+Step 4 : Choose keypair 
+
+
+Keypair : Combination of Public and Private Key
+Public Key = Lock						--> AWS keeps it, Automatically stores inside ec2 instance (AWS)
+Private Key = Key to open the lock		--> Downlaods to our laptop automatically (YOU)
+
+Linux os : Use key directly and connect (.pem and .ppk)
+
+Putty : .ppk (Putty Private Key)
+MobaXterm : .pem and .ppk
+Command Prompt / Terminal : .pem
+git Bash : .pem
+
+macOS : terminal
+Windows : ps / command prompt
+
+Browser Connect : Less Secured (We need to open port 22 to everyone)
+
+.pem --> Can i convert .pem to .ppk --> using "PyttyGen"
+
+--> One Keypair can be used with multiple instances. 
+
+=====
+
+Option 1 : Browser Based Connect : Choose the instance, click on "connect" then choose "EC2 Instance Connect"
+and click on "connect"
+* We need to open port 22 for everyone.
+* Check browser popup
+* WE DONT USE THIS FEATURE IN REAL ENVIRONMENTS. 
+
+Option 2 : Use your laptop inbuilt tools.
+
+** At ENTERPRISE, Most of the guys, use this option.
+
+----
+
+Windows: Command prompt / Powershell 
+--> Type "ssh" and enter 
+(ssh usage instruction --> good)
+(ssh is unrecognised command --> Need to enable openssh in your laptop - follow below steps)
+
+Open settings --> system --> Optional Features --> View Features --> Add an Optional feature --> look for "OpenSSH CLient" --> Click on the checkbox --> Next --> Finish.
+Close the cmd prompt and open again, Type "ssh" and it should return ssh usage instructions.
+
+Open a command prompt at your keypair folder location --> type "dir" and you should able to see "keypair".
+
+
+Windows: UNPROTECTED PRIVATE KEY FILE! / Permissions are too open.!!
+
+icacls "C:\path\to\keypair" /inheritance:r
+icacls "C:\path\to\keypair" /grant:r "$($env:USERNAME):(F)"
+icacls "C:\path\to\keypair"
+
+ssh -i <keypair> <username>@<public-ip>
+
+ssh -i awar10-lnx-kp.pem ec2-user@13.203.196.201
+
+---------
+
+MacOS : Every mac will have default terminal. Open it. --> type "ls" and you should able to see "keypair".
+
+Possible errors: WARNING: UNPROTECTED PRIVATE KEY FILE!
+
+chmod 400 awar10-lnx-kp.pem
+
+ssh -i <keypair> <username>@<public-ip>
+
+ssh -i awar10-lnx-kp.pem ec2-user@13.203.196.201
+
+----
+
+Option 3 : Works in Windows and MacOS
+
+https://git-scm.com/install/windows Download and install git in your laptop
+
+chmod 400 awar10-lnx-kp.pem
+
+ssh -i <keypair> <username>@<public-ip>
+
+ssh -i awar10-lnx-kp.pem ec2-user@13.203.196.201
+
+-----
+
+Option 4 : Works only in Windows.. Putty Option
+
+* Putty Supports only .ppk file. We have option to conver .pem --> .ppk using "puttygen"
+* Puttygen also helps us to create our own public key and private key.
+
+First using PuttyGen Conver .pem to .ppk, then use putty and connect to the instance.. 
+
+----
+
+Option 5 : 3rd party tools i.e; superputty / mobaxterm
+
+Supports .pem and .ppk files
+
+---
+
+Option 6 : AWS has Cloudshell option to connect to our ec2 instances. 
+Open cloudshell, choose the region if its asked you to. 
+
+Choose Actions and choose upload and then uplaod the keypair (.pem)
+
+chmod 400 <keypair>
+
+ssh -i awar10-lnx-kp.pem ec2-user@13.203.196.201
+
+=========================
+
+Refer LINUX.txt file for linux sessions document
+
+========================
+
+D: 26/06/2026
+
+
+** If you created a snapshot and created volume from the snapshot (OR) IF YOU USE COPY VOLUME VOLUME.. 
+and tryiong to attach the volume to the same ec2 instance (when existing vol is still attached), YOu get an error UUID same error
+
+
+sudo lsblk -f
+
+sudo xfs_repair -L /dev/nvme1n1
+
+sudo xfs_admin -U generate /dev/nvme1n1		--> new uuid will generate
+
+---
+
+snapshot : Backup copy of an ebs volume. Its a point in time copy. 
+
+snaoshots are point in time copies (when you are creating a snapshot, whatever data we have in ebs volume, only that will be backedup in snapshot)
+
+AWS uses s3 platform for storing the snapshots (Not out s3 platform)..
+
+Can we see/view data from a snapshot.? Ans: NO.. 
+Attach to an ec2 instance to view data.. 
+
+AWS uses incremental backup mechanism in backend when it is backing up data into a new snapshot.. 
+As a customer, we just need most recent copy to restore all our data..
+
+If we have an unencrypted volume, how can we enable encryption.? 
+Ans : We cant edit and enable encryption.. 
+
+Take a snapshot of ebs volume (unecry) -->  From Snaoshot Create a volume, WHILE CREATING, ENABLE "ENCRYPTION"
+
+If you want to share a snapshot with other AWS account, Your snapshot should not be encypted with "Default Encryption Key".. 
+
+
+
+================
+
+SLAs : Service Level Agreements.. 
+
+RTO : Recovery Time Objective : 
+Question : How long can we affod to be offline.
+Simple Meaning: Dowtime limit
+Example: If our RTO is 2 hrs, we must have systems should be backup and running with in 2 hours of crash to avoid business loss. 
+
+RPO : Recovery Point Objective : 
+Simple Meaning : Data loss limit
+Question: How much data loss we can offered.
+Example: If your RPO is set to 2 Hours, You must have backup configured for every 2 hours or less than 2 hrs.
+
+DLM / Data Lifecycle Manager : Helps to automate the snapshot cration process. 
+
+DMS uses Tags to filter the resources (instance / EBS volume)
+
+--> We can filter using Instance Tags (We have option to exclude specific volume)
+--> We can filter using EBS tags
+
+==> Can you explain your ec2 instances backup strategy.?
+
+--> Service
+--> Filtering the resource
+--> Tags with key and value
+--> Frequency (4 hrs / non prod - 12 hrs)
+--> Retention period ( pro-7 days - non-3 days)
+
+========================
+
+D: 02/07/2026
+
+EFS : Elastic File System : 
+
+--> EFS works with NFS protocol (NFS : Network File system : 2049)
+--> We can use EFS to mount Multi-AZ spanned ec2 instances. 
+--> No Pre-Provisioned required. 
+--> unlimited Data
+--> You can mount it 100/1000s off ec2 instance.
+
+
+Secure Pipeline Mechanism Between EC2 Instances and EFS : 
+
+Step 1 : Create a security group for web servers who want to access EFS. 
+
+WEB-SG : 
+SSH : 0.0.0.0/0 / MyIP / Custom
+HTTP : 0.0.0.0/0 / MyIP / Custom
+HTTPS : 0.0.0.0/0 / MyIP / Custom
+
+Step 2 : Create a Security group for EFS Service.. 
+
+Option 1 : Open 2049/NFS port at EFS Security group, Choose "WEB-SG" as target. 
+
+Option 2 : Attach "Default SG" for your EC2 Instances and EFS. (Default SG is loopback SG)
+
+Option 3 : Open EFS for Entire VPC CIDR range. (172.31.0.0/16)
+
+Option 4 : Take the ec2 instance Private IPs and Add at EFS Sg. 
+
+Option 5 : Open for everyone (EFS --> NFS --> 2049 --> 0.0.0.0/0)
+
+
+--
+
+We can mount EFS using DNS Name : fs-07f6ed6df226435c7.efs.ap-south-1.amazonaws.com **
+IP Address : Limited to one Specific AZ.. 
+
+sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport fs-07f6ed6df226435c7.efs.ap-south-1.amazonaws.com:/ efs
+
+---
+
+Launching 2 ec2 instances in 2 AZs.. and going to mount the EFS to both the ec2 instances. 
+
+Using userdata am making both ec2 instances as webserver.. 
+
+#!/bin/bash
+sudo dnf install httpd -y
+sudo systemctl start httpd
+sudo systemctl enable httpd
+
+http DocumentRoot Path: /var/www/html/
+nginx DocumentRoot Path: /usr/share/nginx/html/
+
+sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport fs-07f6ed6df226435c7.efs.ap-south-1.amazonaws.com:/ /var/www/html/
+
+findmnt -t xfs
+
+======================================
+
+D: 03/07/2026
+
+GoldenAMI / Customised AMI : 
+
+Requirement : We need 10 ec2 instances with below custom settings
+1. Need custom User with password and Sudo Permissions					--> Done			
+2. Need packages i.e; telnet, tree, AV, Internal approved softwares, monitoring softwares
+3. WebServer by installing httpd										--> Done
+4. Mount EFS for shared storage at documentrootpath of apache/httpd		--> Done
+5. add an addl volume and make use to store your content.				--> Done
+
+Option 1 : Launch 10 ec2 instance, connect to each and every instance and perform the above customisations x10 times.
+
+Option 2 : Launch 1 ec2 instance, Connect and perform the modifications, then Create a CustomAMI / GoldenAMI. then launch 10 instance / 20 instances from the GAMI.
+
+
+1. ssh config : /etc/ssh/sshd_config
+
+sudo vim /etc/ssh/sshd_config
+passwordauthetication yes
+
+1.1 cloud init config : /etc/cloud/cloud.cfg
+
+ssh_pwauth--> true
+
+sudo systemctl restart sshd
+sudo systemctl restart sssd
+
+sudo useradd avinash
+sudo passwd avinash
+sudo usermod -aG wheel avinash
+
+---
+
+2. sudo dnf install tree -y
+sudo dnf install telnet -y
+
+---
+
+3. sudo dnf install httpd -y
+
+sudo systemctl sytart httpd
+sudo systemctl eanble httpd
+
+---
+
+4. Create efs and. mount it to /var/www/html/ and add the entry into /etc/fstab file for perm mount.
+
+---
+
+5. create an addl volume and moun it and make it perm mount
+
+lsblk
+
+/dev/nvme1n1
+
+sudo file -s /dev/nvme1n1
+sudo mkfs -t xfs /dev/nvme1n1
+sudo cd /mnt
+sudo mkdir addlvol 
+sudo mount /dev/nvme1n1 /mnt/addlvol
+
+sudo tail -n 1 /etc/mtab
+
+/dev/nvme1n1 /mnt/addlvol xfs rw,seclabel,relatime,inode64,logbufs=8,logbsize=32k,sunit=8,swidth=8,noquota 0 0
+
+sudo vim /etc/fstab
+
+------------
+
+=============
+
+IMDS : Instance MetaData Service
+
+v1 : Less secured - SSRF Server Side request forgery
+v2 : It needs token to access metadata
+
+curl http://169.254.169.254/latest/meta-data/hostname
+
+ami-id
+ami-launch-index
+ami-manifest-path
+block-device-mapping/
+events/
+hostname
+identity-credentials/
+instance-action
+instance-id
+instance-life-cycle
+instance-type
+local-hostname
+local-ipv4
+mac
+managed-ssh-keys/
+metrics/
+network/
+placement/
+profile
+public-hostname
+public-ipv4
+public-keys/
+reservation-id
+security-groups
+services/
+system
+tag-sets/
+
+---
+
+v2 : We need to generate a token and use this token to get the instance info. token has an exipration period.
+
+curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"
+
+AQAEAA00cfoLi6O_-ZNOF5NHSzsvk3olSROcJwwvYPIP6hUQ5joaxA==
+
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+
+echo $TOKEN
+
+curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/public-ipv4
+
+=======
+
+userdata: This helps to execute commands when instance launched for the firsttime. 
+--> Userdata execute comamnds as root user.
+--> the script size should not exceed 16 Kb
+--> Output logs location : /var/log/cloud-init-output.log
+--> aws copies the userdata to this path, then executes it: 
+/var/lib/cloud/instances/<instance-id>/user-data.txt
+
+
+
+# 	: Hash / Sharp : Signals a comment in most scripting languages
+!	: Bang			
+/bin/bash	: The absolute path to the bash executable file/commands
+
+#!/bin/bash
+dnf install httpd -y
+systemctl start httpd
+systemctl enable httpd
+echo "<h1>This website created and delivered using Userdata</h1>" >> /var/www/html/index.html
+
+
+vim web.sh
+chmod +x web.sh
+./web.sh
+
+
+=================
+
+D: 04/07/2026
+
+Monitoring : CLoudwatch service monitors the resources. 
+Observability : o11y : SREs : It can look into the logs, identify the issue and verify the traces and alert if required.
+
+By using CW, We can monitor " CPU, network in/out, Disk read/write and status checks". 
+
+By using CW default Metrics, we CAN'T monitor : Memory usage, Disk used %, getting logs of custom application running inside ec2 instance..
+
+CW / CloudWatch : Has 2 types of monitoring.
+1. Basic Monitoring : Monitoring graph updates for every "5 minutes" interval.
+2. Detailed Monitoring : Monitoring graph updates for every "1 minute" interval.
+
+
+To add some load on ec2 instance CPU, run below command:
+
+
+sudo dnf install stress -y
+
+nproc		--> displays cpu count of your machine
+
+CPU Load
+stress --cpu 2 --timeout 60
+
+memoru Load
+stress --vm 2 --vm-bytes 512M --timeout 600
+
+
+Metric : "CPU Usage", Network, Disk Usage, Memory
+Threshould : The selected metric (CPU Usage) usage exceeding "%" (>= 80%) for a period (5 min or more).. 
+Action : Do you wan tto take any automated action i.e; stop/reboot/terminating/recover.. (ASG)
+Notification : Send Email using SNS service
+
+alarm : 
+
+Dashboard : 
+
+
+---
+
+
+Step 1 : Navigate to IAM, Click on Create Role, Choose "ec2" and Select "CloudWatchAgentServerPolicy" --> provide role name "cwagentrole".
+
+
+Step 2 : launch an ec2 instance and attach the IAM role you created in Step 1. 
+
+Step 3 : Install cloudwatch agent
+
+Step 3.1 Install apache/httpd and serve webcontent for generating application logs.
+
+sudo dnf install amazon-cloudwatch-agent -y
+
+sudo systemctl status amazon-cloudwatch-agent
+sudo systemctl enable amazon-cloudwatch-agent
+
+By default CW look for "config.json" file at "/opt/aws/amazon-cloudwatch-agent/bin/"
+
+crete cw config file : 
+sudo su
+cd opt/aws/amazon-cloudwatch-agent/bin/
+vim config.json									--> Refer the shared config file
+
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:///opt/aws/amazon-cloudwatch-agent/bin/config.json -s
+
+
+application logs storing at : 
+/var/log/httpd/access_log  
+/var/log/httpd/error_log
+
+
+Step 4 : verify the cw agent status: 
+sudo systemctl status amazon-cloudwatch-agent
+
+============
+
+D: 06/07/26
+
+[host, logName, user, timestamp, request, statusCode=4*, size]
+
+[ip = 124.123.164.179, ident, user, timestamp, request, status_code, size, agent]
+
+
+========================
+
+
+EventBridge : 
+
+1. Event Driven process : React to an event
+
+When instance stopped, get a notification
+When user Deleted/Created, get Alert/Notification
+When Object uploaded to s3, invoke a lambda function.. 
+
+2. Scheduled Process : Run task at a specific interval.
+
+Everyday at 09AM start instance
+Eventday at 6 PM stop instance
+for every 5 min, invoke a lambda function
+
+
+Event : A JSON message that describe a change in state.
+
+Event Bus : The channel through which event flows (default / Custom / Partner)
+
+Rule : Defines which events to match and where to send them.
+
+Event Pattern : JSOn Filter
+
+
+Input Transformer : Reshape the event before sending it to target.
+Input Path : Pick what you need
+Input Template : Use input path info in simple langugae in input template
+
+=======
+
+Req 1 : When instance state changed i.e; stopped, send alert.
+
+
+{
+   "version":"0",
+   "id":"8046f980-4a56-7a15-75e2-eea7332b6ea5",
+   "detail-type":"EC2 Instance State-change Notification",
+   "source":"aws.ec2",
+   "account":"655700896650",
+   "time":"2026-07-06T04:33:35Z",
+   "region":"ap-south-1",
+   "resources":[
+      "arn:aws:ec2:ap-south-1:655700896650:instance/i-052f970913bd02164"
+   ],
+   "detail":{
+      "instance-id":"i-052f970913bd02164",
+      "state":"stopped"
+   }
+}
+
+---
+
+Input Path : 
+
+{
+	"time" : "$.time",
+	"region" : "$.region",
+	"instance-id" : "$.detail.instance-id",
+	"account" : "$.account",
+	"state" : "$.detail.state"
+}
+
+---
+
+Input Template : 
+
+"At <time>, In my <account> region <region>, a speicific instance with <instance-id> changed its status to <state>"
+
+==========
+
+Req : When IAM user created / deleted, send alert. 
+
+Pre-req: Create a management trail in cloudtrail. 
+
+
+{
+  "source": ["aws.iam"],
+  "detail-type": ["AWS API Call via CloudTrail"],
+  "detail": {
+    "eventSource": ["iam.amazonaws.com"],
+    "eventName": ["CreateUser", "DeleteUser"]
+  }
+}
+
+----
+Task
+Req 3 : When anyone modify any existing IAM policy, Send alert.
+
+Req 4 : When anyone opens port 22/3389 open for everyone (0.0.0.0/0), send alert. 
+
+===================
+
+D: 07/07/2026
+
+ClickOps : Performing aws operations using browser. 
+
+https://aws.amazon.com/cli/
+https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+
+aws --version
+
+aws configure
+AccessKey: AKIAZRKWRVOFJTRB2TNA
+SecretAccessKey : xxxx
+Default region : ap-south-1
+Default Output : json / table / text
+
+STS : Security Token Service : THis helps to issue temporary, limited privilaged credentails. 
+
+
+Verify which cli user configured and which account it is pointing:  aws sts get-caller-identity
+
+aws <service-name> <command> <arguments>
+
+aws s3 ls
+aws s3 ls s3://bucketname
+aws s3 cp <sourcepath> s3://bucketname
+aws s3 cp s3://bucketname/file.txt <localpath>
+aws s3 sync <sourcepath> s3://bucketname
+
+aws s3 cp s3://avizway7.com/index.html . --dryrun
+
+--dryrun		: performing command simulation, not actual execution. 
+
+--debug			: helps to identify potential command issues or connectivity issues. 
+
+aws s3 ls --debug
+
+-----
+
+You can access multiple AWS accounts using profile option.. 
+
+aws configure --profile dev
+aws configure --profile uat
+aws configure --profile prd
+
+------
+
+Problem with this option is, Credentials stores in plain text format in our laptop.. 
+
+c:/users/<username>/.aws/credentails ([dev] accesskey & secretkey, [uat] accesskey & secretkey)
+c:/users/<username>/.aws/config ([dev] region, output, [uat] region, output)
+
+mac: cd ~		--> ls -a 
+
+===========================
+
+We try to avoid above option mostlyt.. If we dont have alternative, then we use it.. 
+
+Some alternatives: 
+
+1. cloudshell
+2. aws login
+
+AWS Login: newer and recommended way to access aws env using temp credentials.. 
+
+IAM user should have AWS management console access.. 
+You need to atatch "SignInLocalDevelopmentAccess" policy to the user who want to login using "aws login"
+
+--> Establish a session : 12 Hours
+--> Temp token : 15 min
+
+AWS login stores temp token at "~/.aws/login/cache/xxxx.json" with expiration period. 
+
+--> If you have a server without browser/UI, Still we can use "aws login" option.. 
+
+aws login --remote
+
+aws login --profile dev
+aws login --profile uat
+
+=======================
+
+D: 08/07/2026
+
+*ClouOps exam imp topic
+
+Systems manager : 
+
+sudo dnf install amazon-ssm-agent -y
+
+sudo systemctl enable amazon-ssm-agent --now			==> start and enable
+
+sudo systemctl status amazon-ssm-agent
+
+--> If you want to manage ec2 instances using SSM service, you need to attach an IAM role to the instance. 
+--> AmazonSSMManagedInstanceCore : This helps to connect ec2 instance using SSM. 
+
+
+1. Session Manager : Connect to ec2 instance without port 22 opened at SG level, also, without keypair. 
+
+Int Q: Can we connect to ec2 instance without opening port 22.? 
+
+2. Fleet manager : without connecting to ec2 instance, we can see processes, users and we can manage these. 
+Fow windows Instance, using Fleet manager, we can connect GUI.
+
+3. Run Command : We can execute commands without connecting to ec2 instance (10 - 100s of instances).
+
+4. Parameter Store : We can store less-sensitive values here as a parameter. from our application we can call this parameter and use the value when required. This service eliminates hardcoading the sensitive information in .env file or within the code.
+**LIMITATION comapred with Secrets manager, We canot automatically rotate the cred. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

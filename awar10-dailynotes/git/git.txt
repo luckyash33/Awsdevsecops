@@ -1,0 +1,242 @@
+
+
+pradeep - login				-- his laptop
+shiva - card				-- shiva laptop
+suneel - payment gateway	-- suneel laptop
+abhishek - recommendation
+ram - db
+
+git it is a version control system. It is a tool that records snapshots, meaning changes to our project over time, so we can review history. If we make any mistake we can undo it and we can collaborate with all other team members without overwriting each other's work. 
+
+
+1973	- SCCM - Source code control system - 1 file
+		  RCS - Revision control system 	- x files, 1 Directory
+		  CVS - Cuncurrent vesion system	- x file, x folders, 1 user
+2000	- SVN - Subversion					- x files, x folders, x users
+2005 	- GIT - Global Infroamtion Tracker	- x files, x folders, x users, branching, cherrypick.. 
+
+Original Author of Git : Linus Torvalds 
+
+https://git-scm.com/install/
+
+
+git config --list
+
+git config --global user.name "avizway1"
+git config --global user.email "avizway@gmail.com"
+git config --global core.editor "vim"
+git config --global --edit
+
+
+objects/		: Directory structures, File content in blobs, Commit histories, Tags stored here
+refs/			: stores pointers to commits
+hooks/			: It contains customizable scripts that get run automatically before or after commit or push operations. 
+logs/			: Keeps the history of changes that are happening on our repo.
+
+HEAD			: This points to the latest or current checkout branch or specific commit hash. 
+
+Traditional Git creates a branch with the name `master` but all the latest ones, like GitHub, GitLab, and Bitbucket, use the default branch name as `main`. 
+
+git branch -M main					--> Rename the branch from "master" to Main.
+
+git add .							--> Files moves to git staging area
+git add <file>
+
+git rm --cached index.html			--> Remove the file from staging
+
+
+git commit -m "initial landing page debelopement completed"
+
+git remote add origin git@github.com:avizway1/mycode.git
+
+git push --set-upstream origin main		(or) 	git push -u origin main
+
+
+==========================
+
+ssh authentication method:
+
+ssh-keygen -t ed25519 -C "avizway@gmail.com"
+
+/home/ec2-user/.ssh/id_ed25519
+
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+
+copy the content of the publickey and store it in github account. github settins --> ssh and gpg keys --> add the public key.
+
+
+ssh -T git@github.com
+
+-------------------------
+
+
+git add . 
+git commit -m "added login feature 2"
+git push
+
+
+git clone git@github.com:avizway1/mycode.git
+
+
+====================================================================================
+
+D: 24/08/2026
+
+clone : we can get a copy of our entire code to our local machine. Whenever any new team member joins our project, we ask them to clone the repository so that he can start working on that existing code. 
+
+pull : when multiple team members are working on the same repository, you want to get their changes locally so you can run the `git pull` command to get all the changes to your machine. This is very helpful whenever multiple members are working in a project. 
+
+Generally developers run this `git pull` command as the first thing before they start working for the day. 
+
+=========
+
+.gitignore : this file helps us not to commit sensitive information files or unwanted files into our central repository. 
+
+=========
+
+git log
+
+git log --oneline
+
+git diff <commit-id-1>..<commit-id-2>
+
+================
+
+TBD : Trunk Based Development: it is a GitHub Git development strategy. We generally don't work on the main branch directly. We always create a branch. We do all the changes in the branch. Once the feature development is completed we merge the code into the main branch 
+
+a version control management practice where all developers merge small, frequent updates into a single central branch, typically called the "trunk" or "main"
+
+
+git branch 	: Displays in which branch we are currently working. 
+
+
+git branch feature-x		: Creates a branch with the name `feature-x`. 
+
+git checkout feature-x		: Switch to featurex branch, traditional command. 
+git switch feature-x		: Switch to feature-x branch and this is a modern command. 
+
+git switch -c feature-x		: Create a branch and switch to that branch automatically. 
+git checkout -b feature-x	: Create a branch and switch to that branch automatically. 
+
+---
+
+Let's assume you and your friend both are writing a book and it has six chapters. You wrote three chapters and your friend wrote three chapters. 
+
+git merge : `git merge` brings all changes together. This is a very safe approach for a shared repo when multiple developers are working. 
+
+you wrote 3 chapters
+your friend wrote 3 chapters at sametime.
+you both decided to combine.
+--> If you merge, it shows as you arote 3 chapters and your wrote 3 chapters. 
+--> If keeps all original commit hashes. 
+
+
+git rebase : `git rebase` generally rewrites all the changes. It is not a recommended approach for shared repositories. This works best in our local commits. 
+
+you wrote 3 chapters
+your friend wrote 3 chapters at sametime.
+you both decided to combine.
+--> if we choose to go with rebase, it shows as you write 3 chapters first, then your frined wrote 3 chapters for clean and leniar history.
+
+ 
+echo "C1" >> main.txt && git add . && git commit -m "c1"
+echo "C2" >> main.txt && git add . && git commit -m "c2"
+echo "C3" >> main.txt && git add . && git commit -m "c3"
+
+
+git checkout -b feature HEAD~1
+
+
+echo "D" >> feature.txt && git add . && git commit -m "D in Feature branch"
+echo "E" >> feature.txt && git add . && git commit -m "E in Feature branch"
+
+
+git log --oneline --graph --all
+
+Thumb rule when working with rebase: never rebase a branch that has been pushed to a shared or public repo. For local development absolutely fine to use this rebase. For central or shared repositories always use `git merge`, as rebase cleans up the history and it may overwrite others' work. 
+
+=============================
+
+D: 25/08/2026
+
+git stash : To temporarily save uncommitted code changes without committing them. 
+
+You can assume a scenario where you are working on a feature and that feature development is half completed but your team member asked you to switch to a different branch to fix a mission-critical issue. You are in a situation where you cannot commit now but you need to switch to other branches to fix the critical bug. 
+
+echo "Commit-1 Feature 1 setup" >> C1.txt
+git add . && git commit -m "Commiting C1 feature"
+
+echo "Commit-2 Feature 2 setup" >> C2.txt
+git add . && git commit -m "Commiting C2 feature"
+
+echo "Commit-3 Feature 3 setup" >> C3.txt
+git add . 
+
+--> Not in position to commit the changes
+
+
+git stash					--> Stash the uncommited changes
+git stash show -p			--> Shows the stashed content	
+git stash push -m "msg"		--> Stash changes with a msg
+git stash list				--> List all stashed changes
+git stash apply				--> apply and keeps the stash
+git stash pop				--> apply and deletes the stash
+
+--------------
+
+
+cherry-pick: `git cherry-pick` is a command used to copy a specific commit from one branch and apply that in another branch. 
+
+echo "Commit-1 Feature 1 setup" >> C1.txt
+git add . && git commit -m "Commiting C1 feature"
+
+echo "Commit-2 Feature 2 setup" >> C2.txt
+git add . && git commit -m "Commiting C2 feature"
+
+echo "Commit-3 Feature 3 setup" >> C3.txt
+git add .  && git commit -m "Commiting C3 feature"
+
+
+git log --oneline
+
+git cherry-pick 
+
+--------------
+
+create a repo with your own name and it will appear on your github profile langing page.
+
+--------------
+
+We have options to host static applications in github. For hobby these tools are free. 
+--> vercel
+--> netlify
+--> AWS Amplify
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

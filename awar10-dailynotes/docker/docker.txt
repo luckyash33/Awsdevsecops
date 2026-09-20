@@ -1,0 +1,636 @@
+Monolithic architecture : in monolithic architecture all software components are going to be bound together into a single unified codebase. 
+--> All or nothing, as a monolithic architecture deployed as one single unit.
+--> We can choose only one programming language to develop the entire application.
+--> If we have to scale we need to scale the entire application. We cannot scale only one feature. 
+--> In most cases we will have a centralised database for the entire application. 
+
+Microservices architecture: In general, microservice architecture is designed to break the entire application into smaller independent services that can communicate with each other to deliver the application. 
+--> Each service is completely independent. 
+--> We can scale services independently (more servers : frontend, less servers: payment)
+--> It's polyglot. We can choose the required or best programming languages per module.
+- For the frontend : Java
+- For rating : PostgreSQL database.
+- For user management : MySQL.
+- For recommendations : Python.
+
+======================================================================
+
+D: 31/08/2026
+
+
+Physical server vs Virtulisation vs Containers
+
+Why are organisations moving towards containers? Below are the points:
+- Consistent environment. This eliminates the "it works on my machine" issue.
+- Faster setup.
+- Dependency isolation.
+- Easy cleanup.
+- Faster deployments.
+- Easy scaling. We can perform rollback very easily and CI/CD deployment.
+- At the end of the day it is lowering the infrastructure cost and is best suited for microservices architecture. 
+- It breaks monolithic into independently deployable services.
+
+2008 - solomon hykes - PaaS
+2013 - Docker 0.1 version PyCon
+2014 - DockerHub
+2015 - OCI (Open Container Initiative) - Defined Industry standards
+
+
+---
+
+Docker alternatives podman, containerd, cri-o, skopeo
+
+---
+
+sudo dnf install docker -y
+sudo systemctl enable docker --now
+sudo usermod -aG docker $USER
+newgrp docker
+
+
+docker images				: Shows the local docker images
+
+docker ps					: shows running docker images
+docker ps -a				: Shows all containers running & stopped
+
+docker pull					: Pulls the image from dockerhub to local
+
+docker run nginx			: runs the nginx docker contianer in foreground. (If image not available in local, it pull from the dockerhub and runs)
+
+docker run -d nginx			: runs the nginx docker contianer, runs in background.
+
+docker run -d --name mynginx nginx:alpine		: run docker contianer with custom name and detached mode.
+
+docker pause mynginx
+docker unpause mynginx
+
+docker stop mynginx				--> Sends SIGTERM (graceful) signal
+docker kill mynginx				--> sends SIGKILL signal
+docker start mynginx
+
+docker rm <container-id / name>	--> Removes the stopped/killed contianer
+
+docker rmi <image-id / name> 	--> Removes the image
+
+* If any image is used by any of the containers, we cannot remove that container. 
+
+--------
+
+We can pass variables while launching a container
+
+1. pass while launhcing container
+
+docker run -d --name mysql -e MYSQL_ROOT_PASSWORD=s3cret1212 mysql:latest
+
+2. prepare all vars in a file and pass the file as var-file
+
+docker run -d --name mysql2 --env-file ./mydata.txt mysql:latest
+
+mydata.txt
+MYSQL_ROOT_PASSWORD=s3cret1212
+
+--------
+
+docker inspect <name/id>		--> Inspect the configuration
+
+docker stats					--> Shows contianers usage statistics
+
+docker run -d --name nginx-limit --memory=128m --cpus=0.25 nginx
+
+--memory=256m
+--memory=128m
+--cpus=0.25
+--cpus=1
+--cpus=0.50
+--memory-swap=512m
+
+docker inspect --format='{{.HostConfig.Memory}}' nginx-limit
+docker inspect --format='{{.HostConfig.NanoCpus}}' nginx-limit
+
+-------
+
+
+Port Mapping: to access any container output that is running inside an EC2 instance, we have to map a host port to a container port. Then we can test the output via the EC2 instance-IP-address:port-number. 
+
+Make sure to open the required port numbers in the EC2 instance security group. 
+
+docker run -d --name mynginx -p <host-port>:<container-port> nginx
+
+docker run -d --name mynginx -p 80:80 nginx
+
+docker run -d --name mynginx1 -p 8080:80 nginx
+
+docker run -d --name mynginx2 -p 8888:80 nginx
+
+ss -tulnp	==> TO verify the port status inside an ec2 instance
+
+=================
+
+docker logs <contianer-id>/<container-name>			: Shows the container logs
+
+docker logs -f <container-name>						: Shows the container logs in realtime / live logs. **
+
+docker logs --tail 10 <container-name>				: Shows the container last 10 logs
+
+docker events										: stread live events happening
+
+docker top <container-id>							: Shows the processes inside contianer
+
+docker inspect <name/id>							: Inspect the configuration
+
+docker stats										: Shows contianers usage statistics
+
+================
+
+Copy files to/from container:
+
+docker cp ./index.html mynginx1:/usr/share/nginx/html/				: Copy local data to contianer
+
+docker cp <container-id>:/usr/share/nginx/html/index.html ./		: Copy data from contianer
+
+docker diff <container-id>											: Shows the file systemn changes
+
+================
+
+How to connect to a container.? 
+
+docker exec -it mynginx1 /bin/bash						: Connect to container using bash
+docker exec -it mynginx1 /bin/sh						: connect to container using sh
+docker exec -it mynginx1 sh
+
+docker exec mynginx1 ls -l /usr/share/nginx/html/		: Run a command inside container
+docker exec mynginx1 whoami
+docker exec mynginx1 ls
+
+docker exec -u root mynginx1 whoami						: Run command as a specific user
+
+================
+
+Docker volume : 
+
+Docker volume path: /var/lib/docker/volumes/
+
+docker volume inspect <volume-name>	
+
+docker volume ls					: Shows the existing volumes
+
+docker volume create my_data		: create a volume 
+
+data resides : /var/lib/docker/volumes/my_data/_data
+sudo cd /var/lib/docker/volumes/my_data/_data
+
+---
+
+Named Volume : create a volume first with your own name then you can use it. 
+
+docker run -d --name mynginx3 -v my_data:/usr/share/nginx/html -p 8888:80 nginx:latest
+
+
+run multiple containers with shared content: 
+
+docker run -d --name mynginx -v my_data:/usr/share/nginx/html -p 80:80 nginx:latest
+docker run -d --name mynginx1 -v my_data:/usr/share/nginx/html -p 8080:80 nginx:latest
+
+---
+
+Ananymous Volume : on the go, while you are creating a container, you can create a volume. It generates some random ID. 
+
+docker run -d --name mynginx4 -v /usr/share/nginx/html -p 8880:80 nginx:latest
+
+
+---
+
+There is another way that we can map a container. Everything is the same, just the syntax is different. 
+
+docker run -d -p 80:80 --mount source=my_data,target=/usr/share/nginx/html,readonly nginx:latest
+
+
+=============
+
+Bind Mount : we can directly mount one of the host machine's folders to a container. 
+This is not directly managed by Docker and it is not a volume. It is just a local folder. 
+
+docker run -d --name mynginx -v /home/ec2-user/mywebcontent:/usr/share/nginx/html -p 80:80 nginx:latest
+docker run -d --name mynginx1 -v /home/ec2-user/mywebcontent:/usr/share/nginx/html -p 8080:80 nginx:latest
+
+
+read only bind mount: whoever connected to the container cannot modify the data inside the mount. 
+
+docker run -d --name mynginx2 -v /home/ec2-user/mywebcontent:/usr/share/nginx/html:ro,z -p 8888:80 nginx:latest
+
+
+==============
+
+scenario: we have an image in server 1. We need to copy the image to server 2 and we don't have internet in server 1 and server 2 to push and pull from DockerHub. So how you can share.?
+
+docker save -o mynginx.tar nginx:latest				: Exporting image as tar file
+
+scp with private-ip to instance-2
+
+docker load -i mynginx.tar							: Import as image
+
+=============
+
+docker networking
+
+docker network ls									: Shows the exitsing networks
+
+bridge : Default network for contianer.. All containers get their own Virtual Network..
+Host : Contianer shares the host machiene network directly..
+None : No network at all.. 
+
+
+---
+
+Creating bridge network and running the contianers: 
+
+docker network create mycustomnw
+
+docker run -dit --name mynginx --network mycustomnw nginx:latest
+
+docker run -dit --name c1 --network mycustomnw alpine
+docker run -dit --name c2 --network mycustomnw alpine
+
+docker exec -it c1 /bin/sh
+ping c2
+ping mynginx
+ping mynginx2		--> wont work, as it is in diff network
+
+docker run -dit --name mynginx2 nginx:latest
+
+==========
+
+Bridge Mode: 
+1. Bridge mode will have its own IP addresses inside the Docker network.
+2. We can perform the port mapping to deliver the application.
+3. This is more isolated and secure. Your container won't be directly exposed to the network.
+4. This mode has a net component that helps to resolve the container IP addresses, so one additional hop is involved in the traffic flow.
+5. This is best for enterprise-grade and multi-container applications.
+6. This works on Linux, macOS, and Windows operating systems.
+
+Host Mode: 
+1. It shares the host IP address and port.
+2. Port mapping is not required. It directly uses the host IP address and port.
+3. Less isolated compared to bridge as it is directly exposed over the host network.
+4. Slightly faster compared to bridge as this has one hop less.
+5. We can use this specifically for a monitoring agent not to run over a regular workload.
+6. Works only on the Linux operating system.
+
+docker run -d --name host-test --network host nginx:latest
+docker run -d --name host-test2 --network host nginx:latest
+
+==============================
+
+D: 02/09/2026
+
+Restart policies : We can contrl what happens when a container stops or the host reboot.
+
+always				: always restart, include on host reboot
+unless-stopped		: Similar to always, but not if manually stopped
+no					: never restart
+
+
+docker run -d --restart=always --name mynginx -p 80:80 nginx:latest
+
+docker run -d --restart=unless-stopped --name mynginx2 -p 8080:80 nginx:latest
+
+docker run -d --name mynginx3 -p 8888:80 nginx:latest
+
+
+always: we can use this option if we want the container running 100% of the time the host is on, no matter what action we took previously. 
+
+unless-stopped: this gives better control. If we intentionally stop a container to perform maintenance, like apply updates or troubleshooting, you don't have to wait for it to randomly wake back up because the EC2 instance rebooted. 
+
+							restart always				unless-stopped
+							
+1. Container crashed		retsart automatically		retsart automatically
+
+2. Host reboot 
+(container running)			retsart automatically		retsart automatically
+
+3. Host reboot				retsart automatically		stays stopped on boot
+(container manually stopped)
+
+
+Interviewer: we have a container that continuously monitors the host system. If the host restarts, the container should start automatically. It is designed to monitor the host usage or something. How would you configure this? 
+
+
+================================
+
+docker container prune			: clears all stopped containers
+
+docker image prune				: clears all dangling images (untagged images)
+docker image prune -a			: Clears all unused images
+
+docker network prune			: clears unused network
+docker volume prune				: clears unused volumes
+
+docker system prune -a			: Removes unused images, containers, networks
+docker system prune --volumes	
+
+docker rm -f $(docker ps -aq)	: Use with caution. It will stop and remove all cotnainers (running & stopped)
+
+==============================
+
+
+FROM		: Set the base image. This must be the first instruction in the Dockerfile.
+
+FROM alpine
+FROM ubuntu:latest
+FROM python:3.13.15-alpine
+FROM node:18
+FROM amazonlinux
+FROM redhat/ubi8:1787647348
+
+---
+
+RUN			: Executes the commands during the image build process
+
+RUN dnf update -y && dnf install nginx -y
+
+-> To follow best practises while writing a Dockerfile, if possible we have to reduce the layers. You can run multiple commands as a single layer. 
+
+---
+
+WORKDIR		: Set the working directory for all the commands we are going to execute below or in subsequent commands. 
+
+WORKDIR /app
+WORKDIR /usr/share/nginx/html/
+
+---
+
+COPY		: We can copy the files or directories from the host machine to the container. 
+
+COPY . .
+COPY src/ /app
+
+COPY <source-path> <cotnainer-path>
+
+---
+
+ADD 		: Similar to copy but it also supports ZIP files. Generally we use the "COPY" most of the time. 
+
+ADD mydata.tar.gz /app
+
+---
+
+CMD		: `CMD` sets the default command to run when the container starts. `CMD` will be overridden if we pass an argument while we are running the `docker run` command. 
+
+
+nginx["nginx","-g","daemon off;"]
+
+FROM amazonlinux:latest
+CMD["echo", "hello from AVINASH"]			--> We build and named it as "myapp"
+
+
+Not passing any arguments while we are running the image
+docker run myapp				: output : "hello from AVINASH"
+
+
+We are passing arguments while we are running the image, so it will override default argument:
+
+docker run myapp "Hello from ANUDEEP"	: output : "Hello from ANUDEEP"
+docker run myapp date					: output : "sep 2 2026"
+
+---
+
+ENTRYPOINT	: We can define a command that always runs even if we pass any argument when running the `docker run` command. 
+
+FROM amazonlinux:latest
+ENTRYPOINT["echo", "hello from AVINASH"]			--> We build and named it as "myapp"
+
+Not passing any arguments while we are running the image
+docker run myapp				: output : "hello from AVINASH"
+
+
+We are passing arguments while we are running the image:
+
+docker run myapp "Hello from ANUDEEP"	: output : Hello from AVINASH Hello from ANUDEEP
+docker run myapp date					: output : Hello from AVINASH sep 2 2026
+
+--> We can combine both:
+
+FROM python 3.13
+ENTRYPOINT["python"]
+CMD["app.py"]					--> We build this image and named as "python-app"
+
+docker run python-app			--> python app.py
+docker run python-app web.py	--> python web.py
+
+
+=========
+
+EXPOSE 		: We document which port the container is listening on. (This is not going to publish the port or open the port. We still need to pass -p to run our container). 
+
+EXPOSE 80
+EXPOSE 3000
+EXPOSE 5000
+EXPOSE 3306
+
+---
+
+USER		: sets the user for running container. It is very highly recommended to run any container as a non-root user to reduce the attack surface or to limit the user permissions. 
+All subsequent commands mentioned in the Dockerfile run with the user we set up now. 
+
+USER appuser
+
+---
+
+VOLUME		: We can create a mount point for shared data or persistent data. 
+
+VOLUME /var/lib/mysql/
+VOLUME /usr/share/nginx/html/
+
+---
+
+ENV			: We can set the environment variable. 
+
+ENV APP_ENV=uat
+ENV NAME=demoapp
+
+---
+
+LABEL		: We can add metadata to the image we are building, like i.e; maintainer, version.
+
+---
+
+SHELL		: We can change the default shell os base OS. 
+
+SHELL ["/bin/bash"]
+
+---
+
+HEALTHCHECK		: We can inform Docker about the container health so Docker can detect whether this container is running healthy or not by using the health check. 
+
+---
+
+ARG 		: we can define arguments during build process, not at runtime.
+
+---
+
+==============================================================================
+
+.dockerignore			: Similar to .gitignore we can mention the files or folders you want to ignore while you are building a Dockerfile. 
+
+.git
+.env
+node_module
+
+==============================================================================
+
+Build a sample To-DO list web application without using any database. 
+
+Below are the requirements:
+1. Create, edit, and delete the to-do list.
+2. Each task should have:
+- Task title
+- Description (optional)
+- Due date
+- Current status
+3. Tasks should automatically have a status of pending.
+4. When we click a checkbox it should mark it as completed.
+5. Completed tasks should be placed or should be visually different from pending tasks.
+6. The user should be able to bring a completed task back to pending.
+7. Provide filters for all tasks, pending tasks, and completed tasks.
+8. Overdue is in 3 days. Highlight the overdue.
+
+Technology: 
+nodejs
+Expressjs
+HTML/CSS/Javascript for frontend
+
+Storage: do not use any database for a persistent task. Use a simple JSON file like a "task.json" so the application can retain tasks after restarting. 
+
+Keep the application simple, clean, and beginner-friendly. 
+
+Do not add authentication, user accounts, or unnecessary features. 
+
+Finally provide: 
+1. Complete project structure
+2. All required source code
+3. Dockerfile
+4. How to run the application file
+5. task.json with example task
+6. API endpoints for creating, updating, deleting, and completing tasks
+
+
+====================
+
+Build docker image: 
+
+docker build -t todoapp .
+
+
+Docker Buildx is a powerful CLI plugin that extends the docker build command with full support for Moby BuildKit features. Its primary superpowers include building multi-architecture images
+
+docker login
+
+docker buildx build --push --platform linux/amd64,linux/arm64 -t avizway/todoapp:fromec2 .
+
+---
+
+docker pull avizway/todoapp
+
+=========================================================
+
+Install buildx inside amazon linux 2023
+
+
+ARCH=$([ "$(uname -m)" = "aarch64" ] && echo arm64 || echo amd64) && VER=$(curl -s https://api.github.com/repos/docker/buildx/releases/latest | grep -o '"tag_name": *"[^"]*"' | cut -d'"' -f4) && mkdir -p ~/.docker/cli-plugins && curl -sSL "https://github.com/docker/buildx/releases/download/${VER}/buildx-${VER}.linux-${ARCH}" -o ~/.docker/cli-plugins/docker-buildx && chmod +x ~/.docker/cli-plugins/docker-buildx
+
+docker buildx version
+
+2. Install QEMU for the foreign architecture: 
+
+docker run --privileged --rm tonistiigi/binfmt --install all
+
+3. Create a container builder. The default docker driver can't do multi-platform at all — you need the docker-container driver:
+
+docker buildx create --name multiarch --driver docker-container --use && docker buildx inspect --bootstrap
+
+4. Build and push
+
+docker login
+
+docker buildx build --push --platform linux/amd64,linux/arm64 -t avizway/todoapp:fromec2 .
+
+============================================================================================================
+
+Interview: you have a Dockerfile. The Dockerfile size is huge. You are asked to reduce the Dockerfile size. How will you reduce it? 
+1. Use minimal Base Image
+2. Implement Multi-stage builds
+3. add .gitignore
+4. Minimize the number of layers
+5. We can use 3rd party tool kits i.e; dive, slim toolkit
+
+
+=====================================
+
+
+Pre-req: Create an ECR repository.
+Launch an ec2 instance, make sure this instance is attached with an IAM role, and a policy with ecr permisisons. "AmazonEC2ContainerRegistryFullAccess"
+
+
+step 1 : authenticate with ECR service
+
+aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 992189742322.dkr.ecr.ap-south-1.amazonaws.com
+
+step 2 : build image.
+
+docker build -t ecrtodoapp .
+
+step 3 : add a tag with ecr repo URI
+
+docker tag ecrtodoapp:latest 992189742322.dkr.ecr.ap-south-1.amazonaws.com/ecrtodoapp:latest
+
+step 4 : push the image to ecr
+
+docker push 992189742322.dkr.ecr.ap-south-1.amazonaws.com/ecrtodoapp:latest
+
+==============
+
+Task 1 : 
+Generate a dockerfile for below programing languages
+1. java
+2. python
+3. nodejs
+4. go
+5. ruby
+
+Task 2 : Prepare an image and push it to DockerHub and ECR.
+
+============
+
+Docker Compose : this option helps us to run multiple containers at a time using a single YAML file. 
+
+
+sudo mkdir -p /usr/libexec/docker/cli-plugins
+
+sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-$(uname -m) -o /usr/libexec/docker/cli-plugins/docker-compose
+
+
+sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+
+docker compose version
+docker compose up
+docker compose up -v
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

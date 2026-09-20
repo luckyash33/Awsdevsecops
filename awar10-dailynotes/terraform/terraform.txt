@@ -1,0 +1,450 @@
+
+
+
+Cloudformation: Support only AWS..
+Terraform : Cloud agnostic : AWS, Azure, Gcp..
+
+
+Terraform created by Mitchell Hashimoto in 2014.
+terraform developed in GO Language.
+originally developed by Hashicorp, Now acquired by IBM.
+
+Started as Open Source, now its a closed source with IBM.
+
+
+https://developer.hashicorp.com/terraform/install
+
+brew tap hashicorp/tap
+brew install hashicorp/tap/terraform
+
+
+Windows laptop: Download the file and unzip it. Create a folder in C:/ with name "terraform", Then move the data into c:/ drive.. "terraform.exe".. Then copy the path and add it as system variable. 
+
+
+cloudforamtion 			terraform
+-------------------------------------
+parameters				variables
+resource				resource
+output					output
+
+-----------
+
+provider: provider block automatically downloads the required plugin to interact with the cloud provider using local aws credentials.
+
+
+provider "aws" {
+  region = "ap-south-1"
+}
+
+
+terraform init					--> This will initialise the local folder as tf workspace.
+
+
+---------
+
+resources: 
+
+resource "tf-defined-resource-name" "webserver1" {
+ami=addsad
+instance_type=t3.micro
+}
+
+----
+
+terraform fmt				--> Run this command to get our code into proper allignment.
+terraform validate			--> Helps to identify the potential config errors/systnxes early state.
+
+terraform plan				--> Treat it as dryrun, tell us whats going to happend when we deploy this.
+
+* Always recommended to run plan before running apply. 
+
+
+terraform init
+terraform plan
+terraform apply
+terraform destroy
+
+f
+v
+
+i
+p
+a
+d
+
+---
+
+
+terraform apply --auto-approve
+terraform apply -auto-approve
+
+
+bucket_name = "aviz-awar10-terraform"
+instance_private_ip = "172.31.5.146"
+instance_public_ip = "13.233.75.25"
+
+terraform output
+terraform output -json
+
+https://registry.terraform.io/providers/hashicorp/aws/latest/docs
+
+
+----------
+
+D: 14/08/2026
+
+Terraform meta arguments, meta arguments are built-in configuration directives in Terraform that alter how resource, data source, or modules behave. 
+
+So primarily we have five meta arguments:
+1. count
+2. depends_on
+3. for_each
+4. provider
+5. life cycle
+	5.1 create_before_destroy
+	5.2 prevent_destroy
+	5.3 ignore_changes
+
+
+parallelism in terraform:
+
+So by default Terraform can create, update, and destroy resources concurrently to maximise the deployment speed. For that it has a parallelism limit: 
+it can perform 10 operations concurrently by default.
+
+We can adjust this by using `terraform apply --parallelism=3`. 
+
+---------
+
+To destroy only one particular resource from an entire template, we can use terraform destroy with the target option. 
+
+terraform destroy -target=aws_s3_bucket.aviz6_bucket -target=aws_s3_bucket.xyz
+
+
+=====================
+
+D: 17/08/2026
+
+chnages happened outside of the terraform: 
+
+--> Do you just want to verify the changes happened outside terraform : terraform plan -refresh-only
+--> Verify the changes and accept the changes to terraform : terraform apply -refresh-only
+--> Wrong changes and revert back to original : terraform apply
+
+--> Recreate a resource (currupted/modified) : 
+terraform apply -replace		--> Replace everything
+terraform apply -replace="aws_instance.mumbaiserver"
+
+recreate : Delete the old one, then create a new one.
+
+-----
+
+TRACE			--> Captures almost everything - api, response, decision 
+DEBUG			--> API calls + info + warn + errors 
+INFO			--> General operational info & Warning & ERRORs
+WARN			--> Warning & Errors
+ERROR			--> Errors only
+
+export TF_LOG=TRACE
+export TF_LOG=WARN
+export TF_LOG=DEBUG
+export TF_LOG=TRACE
+export TF_LOG=ERROR
+
+unset TF_LOG
+
+export TF_LOG_PATH="tflogs.log"
+
+
+================================
+
+terraform init -migrate-state		: Migrate statefile from local to remote backend
+
+terraform state list				: list all resources in statefile
+
+terraform state show aws_instance.mumbaiserver		: Display resource info from state file
+
+
+we can forcefully remove the lock file: terraform force-unlock <lock-id>
+
+terraform force-unlock ea1ad1f6-f2ca-61c1-d7dc-a321dd6118fe
+
+
+----
+
+Below is the best practise checklist to maintain a Terraform state file:
+1. Always use a remote backend S3 for a team's project.
+2. Enable S3 versioning.
+3. Enable S3 bucket locking with governance or compliance mode.
+4. Enable `use_lockfile = true` to prevent concurrent changes from applying.
+5. Set `prevent_destroy = true` on resources including statefile storage s3 bucket.
+6. Block public access on the S3 bucket.
+7. One more important point: never ever manually edit the Terraform state file.
+
+--> Use "Terraform force-unlock" When we really want to unlock the file in emergency cases or in special scenarios. 
+
+
+
+https://wisprflow.ai/r?AVINASH1144
+
+
+
+========
+
+provider : 
+
+
+When we perform `terraform init` the code will do four activities:
+1. Reads our "provider" / "required_providers" providers block.
+2. Downloads the provider plugin from the Terraform registry.
+3. Stores it in the .terraform/ folder.
+4. Creates a .terraform.lock.hcl file for version lock.
+
+project 
+main.tf
+.terraform/
+|	|_providers/
+|		|_ registry.terraform.io
+|				|_hashicorp/aws
+|						|_ 6.x.x
+.terraform.lock.hcl
+terraform.tfstate
+
+
+= 6.0.0				==> Exactly this version only
+>= 6.0				==> THis version or higher
+<=6.0				==> This version or lower
+~> 6.0				==> 6.x only 		(not 7.x 8.x)
+~> 6.50				==> 6.50 and above 	(not 7.x)
+>=5.0, < 6.0		==> any version between 5.0 and 6.0
+
+~> 6.0				==> 6.x only 		==> Most commonly used
+
+
+==> How we can upgrade the provider
+
+terraform init					==> Download / initialise the provider
+
+terraform init -upgrade			==> upgrade providers to latest allowed version
+
+==========
+
+D: 19/08/2026
+
+
+string 	: A single text values	: t3.micro
+number 	: A numeric value		: 3
+bool	: True or false			: true
+list	: Ordered collection of same type values	: ["t3.micro", "t3.small"]
+map		: key-value pair		: { Name= "myserver", env="dev", owner="xyz"}
+tuple	: Mix of different types	: ["dev", 3, true]
+
+
+1. CLI Flag				: terraform apply -var="instance-type=t3.small" 
+2. .tfvars				: terraform apply -var-file="dev.tfvars"
+3. environment var 		: export TF_VAR_instance-type="m5.xlarge"
+4. default value		: defined inside variables block.
+
+
+-----
+
+wheever we are dealing with multiple environments, we can use this tfvars files, to have a seperate configuration for every env.
+
+terraform apply -var-file="dev.tfvars"
+terraform apply -var-file="uat.tfvars"
+
+When we are managing multiple infrastructure environments, like dev, UAT, and production, it is not recommended to have the same state file for all the environments. One deploy can override another's resources. 
+
+----
+
+We can use Terraform workspaces. With this workspace every environment will have its own state files so that it won't mix up with environment to environment. 
+
+terraform workspace list
+
+terraform workspace new dev
+terraform workspace new uat
+terraform workspace new prd
+
+terraform workspace list		--> Shows all and desplays in which workspace we are in.
+
+terraform workspace select default
+
+---
+terraform workspace select dev
+terraform apply -var-file="dev.tfvars"
+---
+terraform workspace select uat
+terraform apply -var-file="uat.tfvars"
+---
+terraform workspace select prd
+terraform apply -var-file="prd.tfvars"
+
+---
+
+terraform workspace delete prd
+
+=================
+
+
+If we lost access to the terraform.tfstate file, we have an option to import existing resources and we can make our Terraform sync with the terraform.state file. 
+
+Import block example
+---------------------
+
+
+import {
+  to = aws_instance.mumbaiserver
+  id = "i-0647f2ef50ef11a7e"
+}
+
+resource "aws_instance" "mumbaiserver" {
+  ami                    = "ami-06a83a7a581c729a9"
+  instance_type          = "t3.micro"
+}
+
+
+===> terraform plan -generate-config-out=generated.tf
+
+terraform apply
+
+----------------------
+
+Method 2: CLI Import method
+
+grab the instance "ami_id" and 'Instance_type" and preapare a resource block
+
+terraform import aws_instance.existing_instance i-0647f2ef50ef11a7e
+terraform import aws_vpc.existing_vpc vpc-id
+
+================================
+
+D: 20/08/2026
+
+Modules: terraform modules help us to organise infrastructure code into a clean scalable folder structure. A module is a collection of related resources that are managed together.
+
+Using modules in our project can improve readability, reduce duplication, and help reusability across teams or environments. 
+
+
+We will have a root module and child modules.
+
+Root module: This is a top-level directory where Terraform commands are executed. All .tf files in the directory collectively form the root module.
+
+Child modules: Modules called or referred to by the root module. They help break down infrastructure into smaller maintainable components. For example we can have one child module for EC2 and another child module for S3. 
+
+
+Project/
+├── main.tf
+├── modules
+│   ├── ec2
+│   │   ├── main.tf
+│   │   ├── outputs.tf
+│   │   └── variables.tf
+│   └── s3
+│       ├── main.tf
+│       ├── outputs.tf
+│       └── variables.tf
+└── variables.tf
+
+
+--> Whenever we are using a module we do not need to define a provider block in the child modules. We can define it only once in the root module. That is sufficient. 
+--> Provider block always should be in the root module only. 
+--> Run `terraform init` whenever we add any new module. 
+--> Each child and root module requires a "variables.tf" file, even if you have not set up any default values. The file and variables should be present. 
+
+In Terraform you must define variables in both root and child modules because each module operates in its own isolated scope. Terraform handles variables as arguments, like in traditional programming functions. A child module cannot see variables in the root module unless we explicitly declare them in the child and pass them down by the way. 
+
+
+========================
+
+
+We have four types of modules:
+1. Local path: where we can write and we can call it.
+
+module "s3" {
+  source      = "./modules/s3"
+  bucket_name = var.bucket_name
+}
+
+
+2. Git repository: We can have all our code in the Git repository. We can call it.
+
+module "vpc" {
+	source = "git::https://github.com/avizway1/module-name.git"
+}
+
+3. Terraform registry: We can provide the source for a Terraform module. We can run it. 
+
+module "iam_user" {
+  source = "terraform-aws-modules/iam/aws//modules/iam-user"
+  name   = "avinash"
+}
+
+4. For a private registry where it will be available within the network, you can call it.
+
+module "network" {
+	source = "app.terraform.io/mycompanyname/network/aws"
+	version = "1.10.1"
+}
+
+========================
+
+terraform builtin functions:
+
+
+upper("Avinash")
+"AVINASH"
+
+jsoncode({{jsoncode}})
+
+max(5, 12, 99)
+
+min(2,12,99)
+
+split(",", "dev,uat,prd")
+tolist([
+  "dev",
+  "uat",
+  "prd",
+])
+
+join()
+
+merge()
+
+lower("avfsagjfbAAAAA")
+"avfsagjfbaaaaa"
+
+file()
+
+
+---
+
+Task 1 : Write tf code to create s3 bucket, Make sure its not public, versionin should be enabled.. Create a cloudfront distribution and add s3 as origin. 
+
+Task 2 : Module - create a VPC with your defined CIDR range (192.168.0.0/16) with subnets.. 
+** We created a VPC for Capstone (VPC, 2 public web, 2 private app, 2 private db), 1 S3 Endpoint.. 
+Launch an ec2 instance inside the vpc public subnet, use remote-exec/userdata and pass commands to deliver the webpage.
+
+Task 3 : Create an IAM user and attach an any of the existing policy. 
+
+Task 4 : Create an RDS mysql database, enable snapshot for 1 day, enable termination protection for rds.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

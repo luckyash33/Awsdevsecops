@@ -1,0 +1,220 @@
+
+RDS : Relational Database Service : data stores structured manner in tables using rows and columns. 
+--> Tabular format
+--> CRUD : Create, Read, Update and Delete
+
+NoSQL : Non-Relational Databases : Data stores unstructured or semi structured data in flexible formats i.e; document, key-value, graphs, JSON.
+
+
+
+On-Premise Hosted DB : Physical hardware.? OS Installation.? OS Patching.? DB Install.? DB Configuration.? DB backup.? DB HA.? DB FT.?
+
+EC2 Instance Hosted DB : OS AWS Provides.. OS Patching.? DB Install.? DB Configuration.? DB backup.? DB HA.? DB FT.?
+
+RDS : OS AWS, OS Patching AWS, DB Configuration AWS (PS),  DB backup AWS (SS), DB HA AWS (M AZ), DB FT AWS (RR).. 
+
+============
+
+RDS supports 7 Relational Database Engines..
+
+1. Amazon Aurora
+	1.1 Aurora Mysql compatable edition
+	1.2 postGRE SQL Compatable edition
+2. MySql : 3306 : mysql workbench 
+3. MSSQL : 1433 : ssms (Sql server management studio)
+4. MariaDB : 3306 : workbench
+5. PostgreSQL : 5432 : pgadmin
+6. Oracle DB : 1521 : SQL Developer / Toad
+7. IBM DB2 : 50001 : ibm enterprise tool
+
+dbeaver
+
+====================================================
+
+We dont create resources with most recent versions.. Untill unless its tagged as LTS (long term support).. 
+We follow "N-1"
+
+EOL : End of Life		: we cannt use it anymore
+EOS : End of Support	: Service provider wont patch software.. wont help to fix bugs..
+Extended Support : Provide support for EOS version, on additional cost basis.. 
+
+t4g.micro 		--> g--> graviton processor, AWS Owned.. Less cost comapred to other..
+
+Storage autoscaling --> AWS automatically Adds more storage when our RDS runs out of space.
+5 GB  (or) 10% of existing storage ==> Picks wich is more
+
+logs:
+Error log
+Slow query log
+
+
+------
+
+myrdsdb.c1ekg4m6e0fi.ap-south-1.rds.amazonaws.com		--> Create CNAME record
+rds.awswithavinashreddy.com
+dbadmin
+Avinash12345
+
+----
+
+sudo dnf install mariadb105 -y
+
+mysql -h rds.awswithavinashreddy.com -u dbadmin -P 3306 -p
+
+--> Option 1: COnnect to Jump server and install mysql client cli and connect
+--> Option 2: Install mysql workbench in your laptop and connect via jump server "connedt TCP/IP over ssh"
+--> Option 3: Create a VPC environment in cloudshell and cionnect to RDS.
+
+
+SHOW DATABASES;
+
+CREATE DATABASE mystudentrdb;
+
+USE mystudentrdb;
+
+CREATE TABLE users ( id INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100),
+age INT
+);
+
+DESC users;
+
+INSERT INTO users (name, age) VALUES ('Avinash','36');
+INSERT INTO users (name, age) VALUES ('Anudeep','34');
+INSERT INTO users (name, age) VALUES ('Aravind','32');
+
+SELECT * FROM users;
+SELECT * FROM users LIMIT 1;
+SELECT * FROM users WHERE age > 33;
+SELECT * FROM users WHERE id = 1;
+
+UPDATE users SET age = 37 WHERE name = 'Avinash';
+
+DELETE FROM users WHERE id = '3';
+DELETE FROM users WHERE name = 'Avinash';
+TRUNCATE TABLE users;
+DROP DATABASE mystudentrdb;
+
+---
+
+SELECT user, host FROM mysql.user;		--> Shows all the existing users.
+
+CREATE USER 'avinash'@'%' IDENTIFIED BY 'Avinash12345';
+
+GRANT SELECT, INSERT, UPDATE on mydb.* TO 'avinash'@'%';
+
+FLUSH PRIVILEGES;
+
+exit;
+
+==================
+
+D: 23/07/2026
+
+Single-AZ DB instance deployment (1 instance): Creates a single DB instance without standby instances. This setup provides:
+99.5% uptime & No data redundancy
+
+Multi-AZ DB instance deployment (2 instances): Creates a primary DB instance with a "non-readable standby instance" in a separate Availability Zone. This setup provides:
+99.95% uptime & Redundancy across Availability Zones.
+
+Multi-AZ DB cluster deployment (3 instances) : Creates a primary DB instance with "two readable standbys" in separate Availability Zones. This setup provides:
+99.95% uptime & Redundancy across Availability Zones
+Increased read capacity & Reduced write latency
+
+---------
+
+ReadReplica : Replica copy of primary database..
+
+
+====================
+
+D: 24/07/2026
+
+Amazon Aurora : 
+--> Aurora has serverless capabilities.
+--> We can define minimum resource and max resource for our DB. 
+--> AWS maintains 6 copies of data across diff AZs.. (6 way replication across 3 AZs)
+--> Aurora supports upto 15 replicas. 
+
+ACUs : Aurora capacity units: 
+1 ACU gives us 2gb RAM 
+
+
+mysql -h myaurora.cluster-chc66g4wq10o.ap-south-1.rds.amazonaws.com -u dbadmin -P 3306 -p --ssl
+
+mysql -h myaurora.cluster-chc66g4wq10o.ap-south-1.rds.amazonaws.com -u dbadmin -P 3306 -p
+
+
+==================================
+D: 27/07/2026
+
+
+Redis : Open source Database service.. 
+
+valkey : its a forked version of opensource widely used caching service "REDIS".
+
+Elasticache : Its a service designed for caching the data for RDS.. 
+
+export REDIS_HOST="mydbcache-qoikij.serverless.aps1.cache.amazonaws.com"
+export REDIS_PORT="6379"
+export CACHE_TTL="300"
+
+
+================================
+
+DynamoDB: AWS nosql database service. "Single digit millisecond latency at any scale of data".. 
+--> Serverless.. No need to provision the capacity. 
+--> RCU and WCU (read / write capacity units)
+
+dynamodb is cheap for Read Operation and costly for write operations.
+
+DAX : Dynamodb accelerator.. cache service for dynamodb. 
+
+===========================
+
+Full Load : Migrating only the existing data from source to destination.
+
+CDC / Change Data Capture : Captures and replicates only the data updates in real time from source to destination.
+
+Full load + CDC (Migrate existing data and replicate ongoing chnages) : Combines the above 2. 
+
+
+1. create DMS Instance
+2. Create a Source Endpoint with source DB Info - test connection
+3. Create a target Endpoint with dest DB Info - test connection
+4. Create DMS Task (Type of Migration, Table include, exclude)
+
+
+=========================
+
+D: 28/07/2026
+
+Redshift : Its an OLAP on AWS. 
+
+OLAP : Online Ananalitical processing : Redshift, Google bigQuery, snowflake, Clickhouse : Tb to Pb : Huge Historical data.. 
+
+OLTP : Online Transaction Processing : mysql, postgresql, oracle, dynamodb : Gb-Tb : Current/ realtime transactions.. 
+
+Leader Node : Plans the query execution.. 
+Compute Node : Holds the actual data.. Takes the query from leader node and executes and return the result.
+
+WLM : Workload Management: THis feature helps redshift to control how queries are using cluster resources. 
+
+If we are running 10 quesries at a time.. some are simple wueries, some are complex ETL, long running queries.. Without WLM, all gets same priority..
+
+With WLM.. It completes the simple workload and plans/ optimise the complex workload.
+
+To perform this, it creates a Queue.. Every Queue will have its memory and cuncurrent slots. 
+
+AutoWLM : Redshift automatically manages. 
+Manual WLM : We can configure Queue, memory and slots. 
+
+
+
+
+
+
+
+
+
+
